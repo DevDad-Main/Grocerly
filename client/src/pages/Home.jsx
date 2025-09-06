@@ -5,6 +5,7 @@ import BestSeller from "../components/BestSeller";
 import BottomBanner from "../components/BottomBanner";
 import NewsLetter from "../components/NewsLetter";
 import Footer from "../components/Footer";
+import Testimonials from "../components/Testimonials";
 
 const Home = () => {
   return (
@@ -13,6 +14,7 @@ const Home = () => {
       <Categories />
       <BestSeller />
       <BottomBanner />
+      <Testimonials />
       <NewsLetter />
     </div>
   );
