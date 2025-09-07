@@ -1,3 +1,4 @@
+import { Github } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -44,7 +45,7 @@ const Footer = () => {
 
         <div className="flex items-center gap-4 mt-8 text-primary">
           <a
-            href="#"
+            href="https://github.com/DevDad-Main/Grocerly"
             className="hover:-translate-y-0.5 transition-all duration-300"
           >
             <svg
@@ -65,7 +66,7 @@ const Footer = () => {
           </a>
 
           <a
-            href="#"
+            href="https://github.com/DevDad-Main/Grocerly"
             className="hover:-translate-y-0.5 transition-all duration-300"
           >
             <svg
@@ -94,7 +95,7 @@ const Footer = () => {
           </a>
 
           <a
-            href="#"
+            href="https://github.com/DevDad-Main/Grocerly"
             className="hover:-translate-y-0.5 transition-all duration-300"
           >
             <svg
@@ -115,7 +116,7 @@ const Footer = () => {
           </a>
 
           <a
-            href="#"
+            href="https://github.com/DevDad-Main/Grocerly"
             className="hover:-translate-y-0.5 transition-all duration-300"
           >
             <svg
@@ -136,7 +137,7 @@ const Footer = () => {
           </a>
 
           <a
-            href="#"
+            href="https://github.com/DevDad-Main/Grocerly"
             className="hover:-translate-y-0.5 transition-all duration-300"
           >
             <svg
