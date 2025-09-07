@@ -1,4 +1,5 @@
 import { uploadBufferToCloudinary } from "../utils/cloudinary.utils.js";
+import { isValidObjectId } from "mongoose";
 import { Product } from "../model/Product.model.js";
 
 //#region Add Product -> api/v1/product/add-product
@@ -57,9 +58,45 @@ export const getProducts = async (req, res) => {
 //#endregion
 
 //#region Get Product By Id -> api/v1/product/:id
-export const getProductById = async (req, res) => {};
+export const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return res.json({ success: false, message: "Invalid Product Id" });
+    }
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.json({ success: false, message: "Product Not Found" });
+    }
+
+    return res.status(200).json({ success: true, product });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
 //#endregion
 
 //#region Amend Product Stock -> api/v1/product/stock
-export const amendProductStock = async (req, res) => {};
+export const amendProductStock = async (req, res) => {
+  try {
+    const { id, inStock } = req.body;
+    if (!isValidObjectId(id)) {
+      return res.json({ success: false, message: "Invalid Product Id" });
+    }
+
+    await Product.findByIdAndUpdate(id, { $set: { inStock } });
+    return res.status(200).json({ success: true, message: "Stock Updated" });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
 //#endregion
