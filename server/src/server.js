@@ -5,6 +5,7 @@ import connectDB from "./db/mongooseDB.js";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import compression from "compression";
+import userRoutes from "./routes/user.routes.js";
 
 //#region CONSTANTS
 const app = express();
@@ -45,6 +46,8 @@ app.use(
 app.get("/", (req, res) => {
   res.send("Backend API up and running...");
 });
+
+app.use("/api/v1/user", userRoutes);
 //#endregion
 
 //#region MONGO CONNECTION
