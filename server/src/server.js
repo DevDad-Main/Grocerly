@@ -8,6 +8,7 @@ import compression from "compression";
 import userRoutes from "./routes/user.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import productRoutes from "./routes/product.routes.js";
+import cartRoutes from "./routes/product.routes.js";
 
 //#region CONSTANTS
 const app = express();
@@ -52,6 +53,7 @@ app.get("/", (req, res) => {
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/product", productRoutes);
 app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/cart", cartRoutes);
 //#endregion
 
 //#region MONGO CONNECTION
