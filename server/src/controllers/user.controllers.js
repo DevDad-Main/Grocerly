@@ -1,7 +1,8 @@
-import { User } from "../models/User.models";
+import { User } from "../model/User.model.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import generateUserToken from "../utils/generateToken.utils.js";
 
+//#region CONSTANTS
 const SALT_ROUNDS = 12;
 const options = {
   httpOnly: true, // keep false for localhost socket io to work
@@ -9,29 +10,7 @@ const options = {
   sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
   maxAge: 7 * 24 * 60 * 60 * 1000, // Weeks time
 };
-
-//#region Generate Access And Refresh Token
-export const generateUserToken = async (userId) => {
-  try {
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.json({ success: false, message: "User does not exist." });
-    }
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
-    return { token };
-  } catch (error) {
-    return res.status(error.status || 500).json({
-      success: false,
-      message:
-        "Something went wrong while generating access and refresh tokens",
-    });
-  }
-};
+//#endregion;
 
 //#region Register User -> api/v1/user/register
 export const registerUser = async (req, res) => {
@@ -119,3 +98,19 @@ export const loginUser = async (req, res) => {
   }
 };
 //#endregion
+
+//#region Logout User -> api/v1/user/logout
+export const logoutUser = async (req, res) => {
+  try {
+    return res
+      .status(200)
+      .clearCookie("token", options)
+      .json({ success: true, message: "User logged out" });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
+////#endregion
