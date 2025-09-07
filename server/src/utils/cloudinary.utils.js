@@ -11,7 +11,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET, // Click 'View API Keys' above to copy your API secret
 });
 
-const uploadBufferToCloudinary = (buffer, folderId) => {
+export const uploadBufferToCloudinary = async (buffer, folderId) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       { folder: `Grocerly/${folderId}`, resource_type: "auto" },
@@ -49,37 +49,37 @@ const uploadBufferToCloudinary = (buffer, folderId) => {
 //   }
 // };
 
-const uploadVideoOnCloudinary = async (localFilePath, folderId) => {
-  try {
-    if (!localFilePath) return null;
-
-    const result = await cloudinary.uploader.upload(localFilePath, {
-      resource_type: "video",
-      format: "mp4",
-      folder: `vidtube/${folderId}`,
-    });
-
-    //NOTE: Once file is uploaded, Delete it from the server
-    //NOTE: Delete the file  from our server
-    fs.unlinkSync(localFilePath);
-
-    return result;
-  } catch (error) {
-    console.log("error uploading video", error);
-    fs.unlinkSync(localFilePath);
-    return null;
-  }
-};
-
-const deleteFromCloudinary = async (publicId) => {
-  try {
-    const result = await cloudinary.uploader.destroy(publicId);
-    // console.log(result);
-    console.log("Successfully deleted from cloudinary");
-  } catch (error) {
-    console.log("Error deleting from cloudinary", error);
-    return null;
-  }
-};
-
-export { uploadOnCloudinary, uploadVideoOnCloudinary, deleteFromCloudinary };
+// const uploadVideoOnCloudinary = async (localFilePath, folderId) => {
+//   try {
+//     if (!localFilePath) return null;
+//
+//     const result = await cloudinary.uploader.upload(localFilePath, {
+//       resource_type: "video",
+//       format: "mp4",
+//       folder: `vidtube/${folderId}`,
+//     });
+//
+//     //NOTE: Once file is uploaded, Delete it from the server
+//     //NOTE: Delete the file  from our server
+//     fs.unlinkSync(localFilePath);
+//
+//     return result;
+//   } catch (error) {
+//     console.log("error uploading video", error);
+//     fs.unlinkSync(localFilePath);
+//     return null;
+//   }
+// };
+//
+// const deleteFromCloudinary = async (publicId) => {
+//   try {
+//     const result = await cloudinary.uploader.destroy(publicId);
+//     // console.log(result);
+//     console.log("Successfully deleted from cloudinary");
+//   } catch (error) {
+//     console.log("Error deleting from cloudinary", error);
+//     return null;
+//   }
+// };
+//
+// export { uploadOnCloudinary, uploadVideoOnCloudinary, deleteFromCloudinary };

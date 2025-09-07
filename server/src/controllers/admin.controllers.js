@@ -1,4 +1,3 @@
-import generateUserToken from "../utils/generateToken.utils";
 import jwt from "jsonwebtoken";
 
 //#region CONSTANTS
