@@ -14,7 +14,7 @@ router.get("/products", isAdminAuthenticated, getProducts);
 router.get("/product/:id", isAdminAuthenticated, getProductById);
 router.post(
   "/add-product",
-  upload.array("images", 4),
+  upload.array("images"),
   isAdminAuthenticated,
   addProduct,
 );

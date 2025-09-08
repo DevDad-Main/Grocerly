@@ -7,6 +7,10 @@ export const addProduct = async (req, res) => {
   try {
     let { productData } = req.body;
 
+    if (typeof productData === "string") {
+      productData = JSON.parse(productData);
+    }
+
     const images = req.files;
     const product = await Product.create({
       ...productData,
@@ -22,9 +26,10 @@ export const addProduct = async (req, res) => {
       }),
     );
 
-    product.imageUrls = imageUrls;
+    product.image = imageUrls;
     await product.save();
 
+    console.log(product);
     return res.status(201).json({ success: true, message: "Product Added" });
   } catch (error) {
     return res
