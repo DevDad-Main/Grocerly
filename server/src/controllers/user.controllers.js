@@ -88,7 +88,7 @@ export const loginUser = async (req, res) => {
       .json({
         success: true,
         user: { email: user.email, name: user.name },
-        message: "User created",
+        message: "User Logged In",
       });
   } catch (error) {
     return res.status(error.status || 500).json({
@@ -113,4 +113,35 @@ export const logoutUser = async (req, res) => {
     });
   }
 };
-////#endregion
+//#endregion
+
+//#region Is User Authenticated -> api/v1/user/user-authenticated
+export const getUserAuthentication = async (req, res, next) => {
+  try {
+    const userId = req.user?._id;
+
+    if (!isValidObjectId(userId)) {
+      return res.json({ success: false, message: "Invalid User Id" });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      res.json({ success: false, message: "User not found" });
+    }
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+        user,
+        message: "User Passed Authentication Check",
+      });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
+//#endregion

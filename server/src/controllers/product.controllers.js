@@ -91,6 +91,7 @@ export const getProductById = async (req, res) => {
 export const amendProductStock = async (req, res) => {
   try {
     const { id, inStock } = req.body;
+
     if (!isValidObjectId(id)) {
       return res.json({ success: false, message: "Invalid Product Id" });
     }

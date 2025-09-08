@@ -1,9 +1,13 @@
 import jwt from "jsonwebtoken";
+import { isValidObjectId } from "mongoose";
 import { User } from "../model/User.model.js";
 
 //#region Generate Token
 export default async function generateUserToken(userId) {
   try {
+    if (!isValidObjectId(userId)) {
+      return res.json({ success: false, message: "Invalid User Id" });
+    }
     const user = await User.findById(userId);
 
     if (!user) {
@@ -18,8 +22,7 @@ export default async function generateUserToken(userId) {
   } catch (error) {
     return res.status(error.status || 500).json({
       success: false,
-      message:
-        "Something went wrong while generating access and refresh tokens",
+      message: "Something went wrong while generating token",
     });
   }
 }

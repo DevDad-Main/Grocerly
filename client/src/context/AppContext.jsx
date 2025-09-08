@@ -20,6 +20,7 @@ export const AppContextProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState({});
   const [searchQuery, setSearchQuery] = useState({});
 
+  //#region Fetch Admin
   const fetchAdmin = async () => {
     try {
       const { data } = await axios.get("/api/v1/admin/admin-authenticated");
@@ -33,10 +34,36 @@ export const AppContextProvider = ({ children }) => {
       setIsAdmin(false);
     }
   };
+  //#endregion
+
+  //#region Fetch User
+  const fetchUser = async () => {
+    try {
+      const { data } = await axios.get("/api/v1/user/user-authenticated");
+      console.log(data);
+      if (data.success) {
+        setUser(data.user);
+        setCartItems(data.user.cartItems);
+      }
+    } catch (error) {
+      toast.error(error.message);
+      setUser(null);
+    }
+  };
+  //#endregion
 
   //#region Fetch All Products
   const fetchProducts = async () => {
-    setProducts(dummyProducts);
+    try {
+      const { data } = await axios.get("/api/v1/product/products");
+      if (data.success) {
+        setProducts(data.products);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
   //#endregion
 
@@ -104,6 +131,7 @@ export const AppContextProvider = ({ children }) => {
   //#endregion
 
   useEffect(() => {
+    fetchUser();
     fetchAdmin();
     fetchProducts();
   }, []);
@@ -127,6 +155,8 @@ export const AppContextProvider = ({ children }) => {
     getCartCount,
     getCartAmount,
     axios,
+    fetchProducts,
+    fetchUser,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

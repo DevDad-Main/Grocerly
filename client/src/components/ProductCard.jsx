@@ -49,9 +49,9 @@ const ProductCard = ({ product }) => {
 
           <div className="flex items-end justify-between mt-3">
             <p className="md:text-xl text-base font-medium text-primary">
-              ${product.offerPrice} {currency}
+              {product.offerPrice} {currency}{" "}
               <span className="text-gray-500/60 md:text-sm text-xs line-through">
-                ${product.price}
+                {product.price}
                 {currency}
               </span>
             </p>
@@ -73,7 +73,7 @@ const ProductCard = ({ product }) => {
               ) : (
                 <div className="flex items-center justify-center gap-2 md:w-20 w-16 h-[34px] bg-primary/25 rounded select-none">
                   <button
-                    onClick={() => setCount(() => removeFromCart(product._id))}
+                    onClick={() => removeFromCart(product._id)}
                     className="cursor-pointer text-md px-2 h-full"
                   >
                     -

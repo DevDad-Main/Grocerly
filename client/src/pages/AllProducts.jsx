@@ -38,7 +38,7 @@ const AllProducts = () => {
 
       {/* Pagination */}
       <div className="flex flex-col items-center mt-20">
-        <div class="flex items-center gap-2 text-gray-500">
+        <div className="flex items-center gap-2 text-gray-500">
           <button
             type="button"
             aria-label="previous"
