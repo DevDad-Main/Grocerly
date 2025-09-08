@@ -3,7 +3,7 @@ import {
   loginUser,
   logoutUser,
 } from "../controllers/user.controllers.js";
-import isAuthenticated from "../middleware/authentication.middleware.js";
+import { isAuthenticated } from "../middleware/authentication.middleware.js";
 import { Router } from "express";
 
 const router = Router();

@@ -4,7 +4,7 @@ import { User } from "../model/User.model.js";
 const isAdminAuthenticated = async (req, res, next) => {
   const { adminToken } = req.cookies;
   if (!adminToken) {
-    return res.json({ success: false, message: "Not Auhtorized" });
+    return res.json({ success: false, message: "Not Authorized" });
   }
 
   try {

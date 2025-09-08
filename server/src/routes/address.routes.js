@@ -2,7 +2,7 @@ import { Router } from "express";
 import {
   addAddress,
   getUserAddresses,
-} from "../controllers/address.controllers";
+} from "../controllers/address.controllers.js";
 import { isAuthenticated } from "../middleware/authentication.middleware.js";
 
 const router = Router();
@@ -10,4 +10,4 @@ const router = Router();
 router.get("/get-addresses", isAuthenticated, getUserAddresses);
 router.post("/add-address", isAuthenticated, addAddress);
 
-export default router();
+export default router;

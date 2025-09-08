@@ -2,6 +2,10 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { dummyProducts } from "../assets/assets";
 import toast from "react-hot-toast";
+import axios from "axios";
+
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
 export const AppContext = createContext();
 
@@ -9,17 +13,32 @@ export const AppContextProvider = ({ children }) => {
   const currency = import.meta.env.VITE_CURRENCY;
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [isSeller, setIsSeller] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [products, setProducts] = useState([]);
 
   const [cartItems, setCartItems] = useState({});
   const [searchQuery, setSearchQuery] = useState({});
 
-  // Fetch All Products
+  const fetchAdmin = async () => {
+    try {
+      const { data } = await axios.get("/api/v1/admin/admin-authenticated");
+      if (data.success) {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
+    } catch (error) {
+      toast.error(error.message);
+      setIsAdmin(false);
+    }
+  };
+
+  //#region Fetch All Products
   const fetchProducts = async () => {
     setProducts(dummyProducts);
   };
+  //#endregion
 
   //#region Add product to cart
   const addToCart = (itemId) => {
@@ -85,6 +104,7 @@ export const AppContextProvider = ({ children }) => {
   //#endregion
 
   useEffect(() => {
+    fetchAdmin();
     fetchProducts();
   }, []);
 
@@ -92,8 +112,8 @@ export const AppContextProvider = ({ children }) => {
     navigate,
     user,
     setUser,
-    isSeller,
-    setIsSeller,
+    isAdmin,
+    setIsAdmin,
     showUserLogin,
     setShowUserLogin,
     products,
@@ -106,6 +126,7 @@ export const AppContextProvider = ({ children }) => {
     searchQuery,
     getCartCount,
     getCartAmount,
+    axios,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

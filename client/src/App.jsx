@@ -21,7 +21,7 @@ import Orders from "./pages/admin/Orders";
 const App = () => {
   const isSellerPath = useLocation().pathname.includes("admin");
 
-  const { showUserLogin, isSeller } = useAppContext();
+  const { showUserLogin, isAdmin } = useAppContext();
 
   return (
     <div className="text-default min-h-screen text-gray-700 bg-white">
@@ -42,18 +42,15 @@ const App = () => {
           <Route path="/orders" element={<MyOrders />} />
           <Route
             path="/admin"
-            element={isSeller ? <AdminLayout /> : <AdminLogin />}
+            element={isAdmin ? <AdminLayout /> : <AdminLogin />}
           >
-            <Route index element={isSeller ? <AddProduct /> : null} />
+            <Route index element={isAdmin ? <AddProduct /> : null} />
             <Route
               path="/admin/product-list"
-              element={isSeller ? <ProductList /> : null}
+              element={isAdmin ? <ProductList /> : null}
             />
 
-            <Route
-              path="/admin/orders"
-              element={isSeller ? <Orders /> : null}
-            />
+            <Route path="/admin/orders" element={isAdmin ? <Orders /> : null} />
           </Route>
         </Routes>
       </div>

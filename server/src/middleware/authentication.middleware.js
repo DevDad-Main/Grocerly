@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { User } from "../model/User.model.js";
 
-const isAuthenticated = async (req, res, next) => {
+export const isAuthenticated = async (req, res, next) => {
   const { token } = req.cookies;
   if (!token) {
     return res.json({ success: false, message: "Not Auhtorized" });
@@ -22,5 +22,3 @@ const isAuthenticated = async (req, res, next) => {
     return res.status(401).json({ success: false, message: "Unauthorized" });
   }
 };
-
-export default isAuthenticated;

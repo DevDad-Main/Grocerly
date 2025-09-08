@@ -9,7 +9,7 @@ const options = {
 };
 //#endregion;
 
-//#region Admin Login -> api/v1/admin/login
+//#region admin login -> api/v1/admin/login
 export const adminLogin = async (req, res) => {
   const { email, password } = req.body;
 
@@ -18,19 +18,19 @@ export const adminLogin = async (req, res) => {
       password === process.env.ADMIN_PASSWORD &&
       email === process.env.ADMIN_EMAIL
     ) {
-      const { token } = jwt.sign({ email }, process.env.JWT_SECRET, {
+      const token = jwt.sign({ email: email }, process.env.JWT_SECRET, {
         expiresIn: "7d",
       });
       return res
         .status(201)
-        .cookie("token", token, options)
+        .cookie("adminToken", token, options)
         .json({
           success: true,
-          user: { email: user.email, name: user.name },
-          message: "Admin User Logged in",
+          user: { email: email },
+          message: "admin user logged in",
         });
     } else {
-      return res.json({ success: false, message: "Invalid Admin Credentials" });
+      return res.json({ success: false, message: "invalid admin credentials" });
     }
   } catch (error) {
     return res.status(error.status || 500).json({
@@ -48,7 +48,7 @@ export const adminLogout = async (req, res) => {
     return res
       .status(200)
       .clearCookie("adminToken", options)
-      .json({ success: true, message: "User logged out" });
+      .json({ success: true, message: "Admin Logged Out" });
   } catch (error) {
     return res.status(error.status || 500).json({
       status: error.status || 500,
@@ -57,3 +57,15 @@ export const adminLogout = async (req, res) => {
   }
 };
 //#endregion
+
+//#region Is Admin Authenticated -> api/v1/admin/admin-authenticated
+export const getAdminAuthentication = (req, res, next) => {
+  try {
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
