@@ -9,6 +9,7 @@ import userRoutes from "./routes/user.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import productRoutes from "./routes/product.routes.js";
 import cartRoutes from "./routes/product.routes.js";
+import addressRoutes from "./routes/address.routes.js";
 
 //#region CONSTANTS
 const app = express();
@@ -54,6 +55,7 @@ app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/product", productRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/cart", cartRoutes);
+app.use("/api/v1/address", addressRoutes);
 //#endregion
 
 //#region MONGO CONNECTION
