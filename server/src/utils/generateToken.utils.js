@@ -14,7 +14,7 @@ export default async function generateUserToken(userId) {
       return res.json({ success: false, message: "User does not exist." });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 

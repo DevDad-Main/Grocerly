@@ -82,6 +82,8 @@ export const loginUser = async (req, res) => {
 
     const { token } = await generateUserToken(user._id);
 
+    console.log(token);
+
     return res
       .status(201)
       .cookie("token", token, options)
@@ -130,13 +132,11 @@ export const getUserAuthentication = async (req, res, next) => {
       res.json({ success: false, message: "User not found" });
     }
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        user,
-        message: "User Passed Authentication Check",
-      });
+    return res.status(200).json({
+      success: true,
+      user,
+      message: "User Passed Authentication Check",
+    });
   } catch (error) {
     return res.status(error.status || 500).json({
       status: error.status || 500,
