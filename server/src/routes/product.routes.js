@@ -10,7 +10,7 @@ import isAdminAuthenticated from "../middleware/adminAuthentication.middleware.j
 
 const router = Router();
 
-router.get("/products", isAdminAuthenticated, getProducts);
+router.get("/products", getProducts);
 router.get("/product/:id", isAdminAuthenticated, getProductById);
 router.post(
   "/add-product",
