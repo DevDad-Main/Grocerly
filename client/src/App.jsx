@@ -17,6 +17,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import AddProduct from "./pages/admin/AddProduct";
 import ProductList from "./pages/admin/ProductList";
 import Orders from "./pages/admin/Orders";
+import NotFound from "./pages/NotFound";
 
 const App = () => {
   const isSellerPath = useLocation().pathname.includes("admin");
@@ -52,6 +53,8 @@ const App = () => {
 
             <Route path="/admin/orders" element={isAdmin ? <Orders /> : null} />
           </Route>
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
       {!isSellerPath && <Footer />}
