@@ -1,10 +1,26 @@
 import React from "react";
 import { assets } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const ProductCard = ({ product }) => {
-  const { currency, addToCart, removeFromCart, navigate, cartItems } =
+  const { currency, addToCart, removeFromCart, navigate, cartItems, axios } =
     useAppContext();
+
+  const addProductToCart = async (productId) => {
+    try {
+      const { data } = await axios.post("/api/v1/cart/add-to-cart", {
+        productId,
+      });
+      if (data.success) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   return (
     product && (
@@ -65,7 +81,7 @@ const ProductCard = ({ product }) => {
               {!cartItems[product._id] ? (
                 <button
                   className="flex items-center justify-center gap-1 bg-primary/10 border border-primary/40 md:w-[80px] w-[64px] h-[34px] rounded cursor-pointer"
-                  onClick={() => addToCart(product._id)}
+                  onClick={() => addProductToCart(product._id)}
                 >
                   <img src={assets.cart_icon} alt="add icon" />
                   Add
@@ -84,7 +100,7 @@ const ProductCard = ({ product }) => {
                   </span>
 
                   <button
-                    onClick={() => addToCart(product._id)}
+                    onClick={() => addProductToCart(product._id)}
                     className="cursor-pointer text-md px-2 h-full"
                   >
                     +

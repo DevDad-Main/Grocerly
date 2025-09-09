@@ -1,6 +1,7 @@
 import { User } from "../model/User.model.js";
 import bcrypt from "bcryptjs";
 import generateUserToken from "../utils/generateToken.utils.js";
+import { isValidObjectId } from "mongoose";
 
 //#region CONSTANTS
 const SALT_ROUNDS = 12;

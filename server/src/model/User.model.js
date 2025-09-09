@@ -7,8 +7,12 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     cartItems: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Product",
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        quantity: { type: Number, required: true },
       },
     ],
   },
