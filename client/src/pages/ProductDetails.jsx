@@ -5,7 +5,7 @@ import { assets } from "../assets/assets";
 import ProductCard from "../components/ProductCard";
 
 const ProductDetails = () => {
-  const { products, navigate, currency, addToCart } = useAppContext();
+  const { products, navigate, currency, addProductToCart } = useAppContext();
 
   const { id } = useParams();
 
@@ -102,7 +102,7 @@ const ProductDetails = () => {
 
             <div className="flex items-center mt-10 gap-4 text-base">
               <button
-                onClick={() => addToCart(product._id)}
+                onClick={() => addProductToCart(product._id)}
                 className="w-full py-3.5 cursor-pointer font-medium bg-gray-100 text-gray-800/80 hover:bg-gray-200 hover:-translate-y-0.5  transition duration-200 rounded-lg"
               >
                 Add to Cart

@@ -25,7 +25,6 @@ const Cart = () => {
   const getUserCart = async () => {
     const { data } = await axios.get("/api/v1/cart/get-cart");
     if (data.success) {
-      toast.success(data.message);
       setCartArray(data.user.cartItems);
     }
   };
@@ -83,7 +82,7 @@ const Cart = () => {
                 <div
                   onClick={() => {
                     navigate(
-                      `/products/${product?.category.tolowerCase()}/${product._id}`,
+                      `/products/${cartItem?.category?.tolowerCase()}/${product._id}`,
                     );
                     scrollTo(0, 0);
                   }}

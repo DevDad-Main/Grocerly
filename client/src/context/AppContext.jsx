@@ -17,7 +17,7 @@ export const AppContextProvider = ({ children }) => {
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [products, setProducts] = useState([]);
 
-  const [cartItems, setCartItems] = useState({});
+  const [cartItems, setCartItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState({});
 
   //#region Fetch Admin
@@ -40,7 +40,6 @@ export const AppContextProvider = ({ children }) => {
   const fetchUser = async () => {
     try {
       const { data } = await axios.get("/api/v1/user/user-authenticated");
-      console.log(data);
       if (data.success) {
         setUser(data.user);
         setCartItems(data.user.cartItems);
@@ -68,20 +67,48 @@ export const AppContextProvider = ({ children }) => {
   //#endregion
 
   //#region Add product to cart
-  const addToCart = (itemId) => {
-    let cartData = structuredClone(cartItems);
-
-    if (cartData[itemId]) {
-      cartData[itemId] += 1;
-    } else {
-      cartData[itemId] = 1;
+  // const addToCart = (itemId) => {
+  //   let cartData = structuredClone(cartItems);
+  //
+  //   if (cartData[itemId]) {
+  //     cartData[itemId] += 1;
+  //   } else {
+  //     cartData[itemId] = 1;
+  //   }
+  //
+  //   setCartItems(cartData);
+  //   toast.success("Product added to cart");
+  // };
+  const addProductToCart = async (productId) => {
+    try {
+      const { data } = await axios.post("/api/v1/cart/add-to-cart", {
+        productId,
+      });
+      if (data.success) {
+        toast.success(data.message);
+        await getCartItems();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
     }
-
-    setCartItems(cartData);
-    toast.success("Product added to cart");
   };
   //#endregion
 
+  const getCartItems = async () => {
+    try {
+      const { data } = await axios.get("/api/v1/cart/get-cart");
+      if (data.success) {
+        setCartItems(data.user.cartItems);
+        console.log(data.user.cartItems);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
   //#region Update cart item quantity
   const updateCartItem = (itemId, quantity) => {
     let cartData = structuredClone(cartItems);
@@ -108,55 +135,51 @@ export const AppContextProvider = ({ children }) => {
 
   //#region Total Cart Items Count
   const getCartCount = () => {
-    let totalCount = 0;
-    for (const item in cartItems) {
-      totalCount += cartItems[item];
-    }
-    return totalCount;
+    // Just returns the amount of products we have in the cart not quantity included
+    return cartItems?.length;
   };
   //#endregion
 
   //#region Get Cart Total Amount
   const getCartAmount = () => {
     let totalAmount = 0;
-    for (const item in cartItems) {
-      let itemInfo = products.find((product) => product._id === item);
-      if (cartItems[item] > 0) {
-        totalAmount += cartItems[item] * itemInfo.offerPrice;
+
+    for (const cartItem of cartItems) {
+      const product = cartItem.product; // The actual product
+      const quantity = cartItem.quantity;
+
+      if (product && quantity > 0) {
+        totalAmount += quantity * product.offerPrice;
       }
     }
-    return Math.floor(totalAmount * 100) / 100;
-  };
 
-  //#endregion
-
-  //#region Updating User Cart
-
-  //#endregion
+    return Math.floor(totalAmount * 100) / 100; // rounds to 2 decimals
+  }; //#endregion
 
   useEffect(() => {
     fetchUser();
     fetchAdmin();
     fetchProducts();
+    getCartItems();
   }, []);
 
   useEffect(() => {
-    const updateUserCart = async () => {
-      try {
-        const { data } = await axios.put("/api/v1/cart/update-cart", {
-          cartItems,
-        });
-        if (!data.success) {
-          toast.error(data.message);
-        }
-      } catch (error) {
-        toast.error(error.message);
-      }
-    };
-
-    if (user) {
-      updateUserCart();
-    }
+    // const updateUserCart = async () => {
+    //   try {
+    //     const { data } = await axios.put("/api/v1/cart/update-cart", {
+    //       cartItems,
+    //     });
+    //     if (!data.success) {
+    //       toast.error(data.message);
+    //     }
+    //   } catch (error) {
+    //     toast.error(error.message);
+    //   }
+    // };
+    //
+    // if (user) {
+    //   updateUserCart();
+    // }
   }, [cartItems]);
 
   const value = {
@@ -169,7 +192,7 @@ export const AppContextProvider = ({ children }) => {
     setShowUserLogin,
     products,
     currency,
-    addToCart,
+    addProductToCart,
     updateCartItem,
     removeFromCart,
     cartItems,
@@ -180,6 +203,7 @@ export const AppContextProvider = ({ children }) => {
     axios,
     fetchProducts,
     fetchUser,
+    getCartItems,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

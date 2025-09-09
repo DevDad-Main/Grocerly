@@ -4,23 +4,14 @@ import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 
 const ProductCard = ({ product }) => {
-  const { currency, addToCart, removeFromCart, navigate, cartItems, axios } =
-    useAppContext();
-
-  const addProductToCart = async (productId) => {
-    try {
-      const { data } = await axios.post("/api/v1/cart/add-to-cart", {
-        productId,
-      });
-      if (data.success) {
-        toast.success(data.message);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
+  const {
+    currency,
+    addProductToCart,
+    removeFromCart,
+    navigate,
+    cartItems,
+    axios,
+  } = useAppContext();
 
   return (
     product && (
