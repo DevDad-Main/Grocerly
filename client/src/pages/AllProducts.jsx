@@ -42,7 +42,7 @@ const AllProducts = () => {
           <button
             type="button"
             aria-label="previous"
-            class="mr-4 flex items-center gap-1 cursor-pointer"
+            class="mr-4 flex items-center gap-1 cursor-pointer hover:-translate-x-0.5"
           >
             <svg
               class="mt-px"
@@ -74,7 +74,7 @@ const AllProducts = () => {
 
             <button
               type="button"
-              class="flex items-center justify-center w-9 md:w-12 h-9 md:h-12 aspect-square bg-indigo-500 text-white rounded-md transition-all"
+              class="flex items-center justify-center w-9 md:w-12 h-9 md:h-12 aspect-square bg-primary text-white rounded-md transition-all"
             >
               2
             </button>
@@ -83,7 +83,7 @@ const AllProducts = () => {
           <button
             type="button"
             aria-label="next"
-            class="ml-4 flex items-center gap-1 cursor-pointer"
+            class="ml-4 flex items-center gap-1 cursor-pointer hover:translate-x-0.5"
           >
             <span>next</span>
 

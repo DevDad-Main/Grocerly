@@ -4,6 +4,7 @@ import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
 
 const AddProduct = () => {
+  const [isSending, setIsSending] = useState(false);
   const [files, setFiles] = useState([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -14,6 +15,7 @@ const AddProduct = () => {
   const { axios } = useAppContext();
 
   const onSubmitHandler = async (e) => {
+    if (isSending) return;
     try {
       e.preventDefault();
 
@@ -24,6 +26,8 @@ const AddProduct = () => {
         price,
         offerPrice,
       };
+
+      setIsSending(true);
       const formData = new FormData();
       formData.append("productData", JSON.stringify(productData));
       for (let i = 0; i < files.length; i++) {
@@ -48,13 +52,19 @@ const AddProduct = () => {
       }
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setIsSending(false);
     }
   };
 
   return (
     <div className="no-scrollbar flex-1 h-[95vh] overflow-y-scroll flex flex-col">
       <form
-        onSubmit={onSubmitHandler}
+        onSubmit={(e) => {
+          toast.promise(onSubmitHandler(e), {
+            loading: "Adding Product...",
+          });
+        }}
         className="md:p-10 p-4 space-y-5 max-w-lg"
       >
         <div>
@@ -183,7 +193,10 @@ const AddProduct = () => {
           </div>
         </div>
 
-        <button className="px-8 py-2.5 bg-primary text-white font-medium rounded-lg hover:-translate-y-0.5 transition duration-200 cursor-pointer">
+        <button
+          disabled={isSending}
+          className={`px-8 py-2.5 bg-primary text-white font-medium rounded-lg hover:-translate-y-0.5 transition duration-200 ${isSending ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+        >
           Add Product
         </button>
       </form>

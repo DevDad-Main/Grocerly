@@ -237,22 +237,7 @@ export const dummyProducts = [
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
   },
-  {
-    _id: "gd48g45h",
-    name: "Carrot 500g",
-    category: "Vegetables",
-    price: 30,
-    offerPrice: 28,
-    image: [carrot_image],
-    description: [
-      "Sweet and crunchy",
-      "Good for eyesight",
-      "Ideal for juices and salads",
-    ],
-    createdAt: "2025-03-25T07:17:46.018Z",
-    updatedAt: "2025-03-25T07:18:13.103Z",
-    inStock: true,
-  },
+
   {
     _id: "gd49g56h",
     name: "Spinach 500g",
@@ -287,24 +272,7 @@ export const dummyProducts = [
   },
 
   // Fruits
-  {
-    _id: "ek51j12k",
-    name: "Apple 1 kg",
-    category: "Fruits",
-    price: 120,
-    offerPrice: 110,
-    image: [apple_image],
-    description: [
-      "Crisp and juicy",
-      "Rich in fiber",
-      "Boosts immunity",
-      "Perfect for snacking and desserts",
-      "Organic and farm fresh",
-    ],
-    createdAt: "2025-03-25T07:17:46.018Z",
-    updatedAt: "2025-03-25T07:18:13.103Z",
-    inStock: true,
-  },
+
   {
     _id: "ek52j23k",
     name: "Orange 1 kg",
@@ -455,22 +423,7 @@ export const dummyProducts = [
   },
 
   // Drinks
-  {
-    _id: "ek61j12k",
-    name: "Coca-Cola 1.5L",
-    category: "Drinks",
-    price: 80,
-    offerPrice: 75,
-    image: [coca_cola_image],
-    description: [
-      "Refreshing and fizzy",
-      "Perfect for parties and gatherings",
-      "Best served chilled",
-    ],
-    createdAt: "2025-03-25T07:17:46.018Z",
-    updatedAt: "2025-03-25T07:18:13.103Z",
-    inStock: true,
-  },
+
   {
     _id: "ek62j23k",
     name: "Pepsi 1.5L",
@@ -662,38 +615,6 @@ export const dummyProducts = [
       "Rich and moist",
       "Made with premium cocoa",
       "Ideal for celebrations and parties",
-    ],
-    createdAt: "2025-03-25T07:17:46.018Z",
-    updatedAt: "2025-03-25T07:18:13.103Z",
-    inStock: true,
-  },
-  {
-    _id: "bk04d32w",
-    name: "Whole Bread 400g",
-    category: "Bakery",
-    price: 45,
-    offerPrice: 40,
-    image: [whole_wheat_bread_image],
-    description: [
-      "Healthy and nutritious",
-      "Made with whole wheat flour",
-      "Ideal for sandwiches and toast",
-    ],
-    createdAt: "2025-03-25T07:17:46.018Z",
-    updatedAt: "2025-03-25T07:18:13.103Z",
-    inStock: true,
-  },
-  {
-    _id: "bk05e33v",
-    name: "Vanilla Muffins 6 pcs",
-    category: "Bakery",
-    price: 100,
-    offerPrice: 90,
-    image: [vanilla_muffins_image],
-    description: [
-      "Soft and fluffy",
-      "Perfect for a quick snack",
-      "Made with real vanilla",
     ],
     createdAt: "2025-03-25T07:17:46.018Z",
     updatedAt: "2025-03-25T07:18:13.103Z",
