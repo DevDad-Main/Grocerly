@@ -130,11 +130,34 @@ export const AppContextProvider = ({ children }) => {
 
   //#endregion
 
+  //#region Updating User Cart
+
+  //#endregion
+
   useEffect(() => {
     fetchUser();
     fetchAdmin();
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    const updateUserCart = async () => {
+      try {
+        const { data } = await axios.put("/api/v1/cart/update-cart", {
+          cartItems,
+        });
+        if (!data.success) {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        toast.error(error.message);
+      }
+    };
+
+    if (user) {
+      updateUserCart();
+    }
+  }, [cartItems]);
 
   const value = {
     navigate,

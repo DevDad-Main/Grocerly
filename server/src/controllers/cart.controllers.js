@@ -7,11 +7,13 @@ export const updateUserCart = async (req, res) => {
     const userId = req.user?._id;
     const { cartItems } = req.body;
 
+    console.log(cartItems);
+
     if (!isValidObjectId(userId)) {
       return res.json({ success: false, message: "Invalid User Id" });
     }
 
-    await User.findByIdAndUpdate(userId, { $set: { cartItems } });
+    await User.findByIdAndUpdate(userId, { cartItems });
 
     return res.status(200).json({ success: true, message: "Cart Updated" });
   } catch (error) {

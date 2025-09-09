@@ -1,6 +1,6 @@
 import { isValidObjectId } from "mongoose";
-import Product from "../model/Product.model.js";
-import Order from "../model/Order.model.js";
+import { Product } from "../model/Product.model.js";
+import { Order } from "../model/Order.model.js";
 
 const threePercentTax = 0.03;
 

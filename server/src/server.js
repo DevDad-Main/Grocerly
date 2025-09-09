@@ -8,9 +8,9 @@ import compression from "compression";
 import userRoutes from "./routes/user.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import productRoutes from "./routes/product.routes.js";
-import cartRoutes from "./routes/product.routes.js";
+import cartRoutes from "./routes/cart.routes.js";
 import addressRoutes from "./routes/address.routes.js";
-import orderRoutes from "./routes/address.routes.js";
+import orderRoutes from "./routes/order.routes.js";
 
 //#region CONSTANTS
 const app = express();
