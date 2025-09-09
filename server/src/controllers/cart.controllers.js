@@ -1,6 +1,5 @@
 import { isValidObjectId } from "mongoose";
 import { User } from "../model/User.model.js";
-import { Product } from "../model/Product.model.js";
 
 //#region Update User Cart -> api/v1/cart/update-cart
 export const updateUserCart = async (req, res) => {
@@ -49,6 +48,7 @@ export const getUserCart = async (req, res) => {
     });
   }
 };
+//#endregion
 
 //#region Add Item To Cart
 export const addItemToCart = async (req, res) => {

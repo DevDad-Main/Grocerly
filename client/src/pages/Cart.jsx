@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { assets, dummyAddress } from "../assets/assets";
-import toast from "react-hot-toast";
 
 const Cart = () => {
   const {
@@ -22,6 +21,7 @@ const Cart = () => {
   const [selectedAddress, setSelectedAddress] = useState(dummyAddress[0]);
   const [paymentOption, setPaymentOption] = useState("COD");
 
+  //NOTE: Only keeping this func call here as we are getting the card and specifically setting the cart array to our cartItems
   const getUserCart = async () => {
     const { data } = await axios.get("/api/v1/cart/get-cart");
     if (data.success) {
