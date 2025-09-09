@@ -28,6 +28,28 @@ export const updateUserCart = async (req, res) => {
 };
 //#endregion
 
+//#region Get Users Cart
+export const getUserCart = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+
+    if (!isValidObjectId(userId)) {
+      return res.json({ success: false, message: "Invalid User Id" });
+    }
+
+    const user = await User.findById(userId).populate("cartItems.product");
+
+    return res
+      .status(200)
+      .json({ success: true, user, message: "Cart Fetched" });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
+
 //#region Add Item To Cart
 export const addItemToCart = async (req, res) => {
   try {
@@ -58,6 +80,42 @@ export const addItemToCart = async (req, res) => {
     return res
       .status(200)
       .json({ success: true, message: "Product Added To Cart" });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
+//#endregion
+
+//#region Remove Item From Cart
+export const removeItemFromCart = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    const { productId } = req.body;
+
+    if (!isValidObjectId(userId) || !isValidObjectId(productId)) {
+      return res.json({
+        success: false,
+        message: "Invalid User Id or ProductId",
+      });
+    }
+
+    //NOTE: product in cart → Decrement Quantity by 1
+    await User.updateOne(
+      { _id: userId, "cartItems.product": productId },
+      { $inc: { "cartItems.$.quantity": -1 } },
+    );
+
+    //NOTE: Once quantity hits 0 then we pull this product from our cartItems Array
+    await User.updateOne(
+      { _id: userId },
+      { $pull: { cartItems: { product: productId, quantity: { $lte: 0 } } } },
+    );
+    return res
+      .status(200)
+      .json({ success: true, message: "Removed Product From Cart" });
   } catch (error) {
     return res.status(error.status || 500).json({
       status: error.status || 500,
