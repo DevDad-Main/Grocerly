@@ -8,12 +8,12 @@ const Cart = () => {
     products,
     currency,
     cartItems,
-    removeFromCart,
     getCartCount,
     updateCartItem,
     navigate,
     getCartAmount,
     axios,
+    removeProductFromCart,
   } = useAppContext();
 
   const [showAddress, setShowAddress] = useState(false);
@@ -26,22 +26,6 @@ const Cart = () => {
     const { data } = await axios.get("/api/v1/cart/get-cart");
     if (data.success) {
       setCartArray(data.user.cartItems);
-    }
-  };
-
-  const removeProductFromCart = async (productId) => {
-    try {
-      const { data } = await axios.patch(`/api/v1/cart/remove-from-cart`, {
-        productId,
-      });
-      if (data.success) {
-        toast.success(data.message);
-        getUserCart();
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error(error.message);
     }
   };
 
@@ -231,7 +215,7 @@ const Cart = () => {
           <p className="flex justify-between">
             <span>Price</span>
             <span>
-              {getCartAmount()} {currency}
+              {getCartAmount().toFixed(2)} {currency}
             </span>
           </p>
 
@@ -243,14 +227,14 @@ const Cart = () => {
           <p className="flex justify-between">
             <span>Tax (3%)</span>
             <span>
-              {getCartAmount() * 0.03} {currency}
+              {(getCartAmount() * 0.03).toFixed(2)} {currency}
             </span>
           </p>
 
           <p className="flex justify-between text-lg font-medium mt-3">
             <span>Total Amount:</span>
             <span>
-              {getCartAmount() + getCartAmount() * 0.03} {currency}
+              {(getCartAmount() + getCartAmount() * 0.03).toFixed(2)} {currency}
             </span>
           </p>
         </div>

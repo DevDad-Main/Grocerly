@@ -79,6 +79,8 @@ export const AppContextProvider = ({ children }) => {
   //   setCartItems(cartData);
   //   toast.success("Product added to cart");
   // };
+
+  //#region Add Product To Cart
   const addProductToCart = async (productId) => {
     try {
       const { data } = await axios.post("/api/v1/cart/add-to-cart", {
@@ -96,6 +98,27 @@ export const AppContextProvider = ({ children }) => {
   };
   //#endregion
 
+  //#region Remove Product From Cart
+  const removeProductFromCart = async (productId) => {
+    try {
+      const { data } = await axios.patch(`/api/v1/cart/remove-from-cart`, {
+        productId,
+      });
+      if (data.success) {
+        toast.success(data.message);
+        // getUserCart();
+
+        await getCartItems();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+  //#endregion
+
+  //#region Get Items In Cart
   const getCartItems = async () => {
     try {
       const { data } = await axios.get("/api/v1/cart/get-cart");
@@ -109,6 +132,8 @@ export const AppContextProvider = ({ children }) => {
       toast.error(error.message);
     }
   };
+  //#endregion
+
   //#region Update cart item quantity
   const updateCartItem = (itemId, quantity) => {
     let cartData = structuredClone(cartItems);
@@ -154,7 +179,8 @@ export const AppContextProvider = ({ children }) => {
     }
 
     return Math.floor(totalAmount * 100) / 100; // rounds to 2 decimals
-  }; //#endregion
+  };
+  //#endregion
 
   useEffect(() => {
     fetchUser();
@@ -204,6 +230,7 @@ export const AppContextProvider = ({ children }) => {
     fetchProducts,
     fetchUser,
     getCartItems,
+    removeProductFromCart,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
