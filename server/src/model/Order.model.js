@@ -32,6 +32,7 @@ const orderSchema = new mongoose.Schema(
       default: "pending",
     },
     isPaid: { type: Boolean, default: false, required: true },
+    deliverySlot: { type: mongoose.Schema.Types.ObjectId, ref: "DeliverySlot" },
   },
   { timestamps: true },
 );

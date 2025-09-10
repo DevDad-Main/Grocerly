@@ -18,6 +18,8 @@ import AddProduct from "./pages/admin/AddProduct";
 import ProductList from "./pages/admin/ProductList";
 import Orders from "./pages/admin/Orders";
 import NotFound from "./pages/NotFound";
+import DeliveryPage from "./pages/DeliveryPage";
+import DeliverySlotTable from "./components/DeliverySlotTable";
 
 const App = () => {
   const isSellerPath = useLocation().pathname.includes("admin");
@@ -41,6 +43,7 @@ const App = () => {
           <Route path="/cart" element={<Cart />} />
           <Route path="/add-address" element={<AddAddress />} />
           <Route path="/orders" element={<MyOrders />} />
+          <Route path="/delivery-slot" element={<DeliverySlotTable />} />
           <Route
             path="/admin"
             element={isAdmin ? <AdminLayout /> : <AdminLogin />}

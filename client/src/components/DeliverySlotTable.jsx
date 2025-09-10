@@ -1,0 +1,186 @@
+import React, { useState, useEffect } from "react";
+import { useAppContext } from "../context/AppContext";
+
+const DeliverySlotTable = () => {
+  const { navigate } = useAppContext();
+  const [selectedSlot, setSelectedSlot] = useState(null); // temp selection
+  const [confirmedSlot, setConfirmedSlot] = useState(null); // locked-in slot
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  const [windowStart, setWindowStart] = useState(0);
+
+  // Generate next 15 days
+  const allDays = Array.from({ length: 15 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() + i);
+    return {
+      label: date.toLocaleDateString("en-GB", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+      }),
+      value: date.toISOString().split("T")[0],
+    };
+  });
+
+  const currentDay = allDays[selectedDayIndex];
+
+  const slotGroups = {
+    Morning: ["9:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00"],
+    Afternoon: ["12:00 - 1:00", "1:00 - 2:00", "2:00 - 3:00", "3:00 - 4:00"],
+    Evening: ["4:00 - 5:00", "5:00 - 6:00", "6:00 - 7:00"],
+  };
+
+  const hasConfirmedSlot = !!confirmedSlot;
+  const canConfirm = selectedSlot && !hasConfirmedSlot;
+  const canRemove = hasConfirmedSlot;
+
+  const slotData = selectedSlot
+    ? {
+        date: currentDay.value,
+        time: selectedSlot.split(" ")[1] + "-" + selectedSlot.split(" ")[3],
+        full: selectedSlot,
+      }
+    : null;
+
+  const handleConfirm = () => {
+    if (canConfirm) {
+      setConfirmedSlot(selectedSlot);
+      setSelectedSlot(null);
+      console.log("Confirmed slot:", slotData);
+      // Replace console.log with your API call to save the slot
+    }
+  };
+
+  const handleRemove = () => {
+    if (canRemove) {
+      console.log("Removed slot:", confirmedSlot);
+      setConfirmedSlot(null);
+      setSelectedSlot(null);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-4xl mx-auto mt-10">
+      <h2 className="text-xl font-semibold mb-7 text-center">
+        Choose a Delivery Slot
+      </h2>
+
+      {/* Mobile dropdown */}
+      <div className="block sm:hidden mb-6">
+        <select
+          value={selectedDayIndex}
+          onChange={(e) => setSelectedDayIndex(Number(e.target.value))}
+          className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-gray-50"
+        >
+          {allDays.map((day, index) => (
+            <option key={day.value} value={index}>
+              {day.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Desktop 5-day row */}
+      <div className="hidden sm:flex items-center justify-between mb-6">
+        <button
+          onClick={() => setWindowStart((i) => Math.max(0, i - 5))}
+          disabled={windowStart === 0}
+          className="px-3 py-1 rounded-lg bg-gray-100 text-gray-600 disabled:opacity-40"
+        >
+          ← Prev
+        </button>
+        <div className="flex gap-3">
+          {allDays.slice(windowStart, windowStart + 5).map((day, index) => {
+            const actualIndex = windowStart + index;
+            return (
+              <button
+                key={day.value}
+                onClick={() => setSelectedDayIndex(actualIndex)}
+                className={`px-4 py-2 rounded-lg font-medium transition ${
+                  selectedDayIndex === actualIndex
+                    ? "bg-primary text-white"
+                    : "bg-gray-50 border border-gray-300 text-gray-700 hover:bg-primary/10"
+                }`}
+              >
+                {day.label}
+              </button>
+            );
+          })}
+        </div>
+        <button
+          onClick={() =>
+            setWindowStart((i) => Math.min(allDays.length - 5, i + 5))
+          }
+          disabled={windowStart >= allDays.length - 5}
+          className="px-3 py-1 rounded-lg bg-gray-100 text-gray-600 disabled:opacity-40"
+        >
+          Next →
+        </button>
+      </div>
+
+      {/* Slots */}
+      {Object.entries(slotGroups).map(([groupName, slots]) => (
+        <div key={groupName} className="mb-4">
+          <p className="text-sm font-medium text-gray-500 mb-2">{groupName}</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {slots.map((time) => {
+              const slotId = `${currentDay.value} ${time}`;
+              const isSelected = selectedSlot === slotId;
+              const isConfirmed = confirmedSlot === slotId;
+
+              return (
+                <button
+                  key={time}
+                  onClick={() => setSelectedSlot(slotId)}
+                  disabled={hasConfirmedSlot && !isConfirmed} // prevent selecting others
+                  className={`py-3 px-3 rounded-xl border text-sm font-medium transition shadow-sm
+                    ${
+                      isConfirmed
+                        ? "bg-red-500 text-white border-red-600"
+                        : isSelected
+                          ? "bg-primary text-white border-primary"
+                          : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-primary/10"
+                    }`}
+                >
+                  {time}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      {/* Actions */}
+      <div className="flex justify-between items-center mt-6">
+        <button
+          onClick={handleRemove}
+          disabled={!canRemove}
+          className={`px-4 py-2 rounded-lg border text-red-500 hover:bg-red-50 ${
+            !canRemove ? "opacity-40 cursor-not-allowed" : "border-red-400"
+          }`}
+        >
+          Remove Slot
+        </button>
+        <button
+          onClick={handleConfirm}
+          disabled={!canConfirm}
+          className={`ml-auto px-6 py-2 rounded-lg font-medium transition ${
+            canConfirm
+              ? "bg-primary text-white hover:bg-primary-dull"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
+        >
+          Confirm Slot
+        </button>
+        <button
+          onClick={() => navigate("/cart")}
+          className={`${hasConfirmedSlot ? "ml-2 bg-primary p-2 text-white rounded-lg cursor-pointer" : "hidden"}`}
+        >
+          Checkout
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default DeliverySlotTable;

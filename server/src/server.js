@@ -11,6 +11,7 @@ import productRoutes from "./routes/product.routes.js";
 import cartRoutes from "./routes/cart.routes.js";
 import addressRoutes from "./routes/address.routes.js";
 import orderRoutes from "./routes/order.routes.js";
+import { generateSlots } from "./utils/generateDeliverySlots.utils.js";
 
 //#region CONSTANTS
 const app = express();
@@ -65,6 +66,7 @@ connectDB()
   .then(
     app.listen(PORT, () => {
       console.log(`Server is running on port: ${PORT}`);
+      // generateSlots();
     }),
   )
   .catch((err) => {

@@ -189,6 +189,17 @@ const Cart = () => {
             )}
           </div>
 
+          <p className="text-sm font-medium uppercase mt-6">Delivery Slot</p>
+          <div className="relative flex justify-between items-start mt-2">
+            <button
+              onClick={() => navigate("/delivery-slot")}
+              className="text-primary hover:underline cursor-pointer"
+            >
+              {" "}
+              Choose Slot
+            </button>
+          </div>
+
           <p className="text-sm font-medium uppercase mt-6">Payment Method</p>
 
           <select
