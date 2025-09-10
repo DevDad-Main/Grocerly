@@ -118,6 +118,26 @@ export const AppContextProvider = ({ children }) => {
   };
   //#endregion
 
+  //#region Remove From Cart
+  const removeFromCart = async (productId) => {
+    try {
+      const { data } = await axios.patch(`/api/v1/cart/remove`, {
+        productId,
+      });
+      if (data.success) {
+        toast.success(data.message);
+        // getUserCart();
+
+        await getCartItems();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+  //#endregion
+
   //#region Get Items In Cart
   const getCartItems = async () => {
     try {
@@ -144,18 +164,18 @@ export const AppContextProvider = ({ children }) => {
   //#endregion
 
   //#region Remove Product from cart
-  const removeFromCart = (itemId) => {
-    let cartData = structuredClone(cartItems);
-
-    if (cartData[itemId]) {
-      cartData[itemId] -= 1;
-      if (cartData[itemId] === 0) {
-        delete cartData[itemId];
-      }
-    }
-    toast.success("Removed from cart");
-    setCartItems(cartData);
-  };
+  // const removeFromCart = (itemId) => {
+  //   let cartData = structuredClone(cartItems);
+  //
+  //   if (cartData[itemId]) {
+  //     cartData[itemId] -= 1;
+  //     if (cartData[itemId] === 0) {
+  //       delete cartData[itemId];
+  //     }
+  //   }
+  //   toast.success("Removed from cart");
+  //   setCartItems(cartData);
+  // };
   //#endregion
 
   //#region Total Cart Items Count

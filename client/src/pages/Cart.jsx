@@ -8,11 +8,12 @@ const Cart = () => {
     currency,
     cartItems,
     getCartCount,
-    updateCartItem,
     navigate,
     getCartAmount,
     axios,
+    addProductToCart,
     removeProductFromCart,
+    removeFromCart,
   } = useAppContext();
 
   const [showAddress, setShowAddress] = useState(false);
@@ -89,28 +90,23 @@ const Cart = () => {
                       Weight: <span>{product?.weight || "N/A"}</span>
                     </p>
 
-                    <div className="flex items-center">
-                      <p>Qty:</p>
-
-                      <select
-                        onChange={(e) =>
-                          updateCartItem(product._id, Number(e.target.value))
-                        }
-                        value={cartItems[product._id]}
-                        className="outline-none"
+                    <div className="flex items-center gap-2 mt-2">
+                      <button
+                        onClick={() => removeProductFromCart(product._id)}
+                        disabled={quantity <= 1}
+                        className="cursor-pointer bg-gray-200 px-2 rounded disabled:opacity-50"
                       >
-                        {Array(
-                          cartItems[product._id] > 9
-                            ? cartItems[product._id]
-                            : 9,
-                        )
-                          .fill("")
-                          .map((_, index) => (
-                            <option key={index} value={index + 1}>
-                              {index + 1}
-                            </option>
-                          ))}
-                      </select>
+                        -
+                      </button>
+
+                      <span className="w-5 text-center">{quantity}</span>
+
+                      <button
+                        onClick={() => addProductToCart(product._id)}
+                        className="cursor-pointer bg-gray-200 px-2 rounded"
+                      >
+                        +
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -121,14 +117,10 @@ const Cart = () => {
               </p>
 
               <button
-                onClick={() => removeProductFromCart(product._id)}
-                className="cursor-pointer mx-auto"
+                onClick={() => removeFromCart(product._id)}
+                className="cursor-pointer mx-auto bg-primary text-white rounded-lg p-2 hover:-translate-y-0.5"
               >
-                <img
-                  src={assets.remove_icon}
-                  alt="remove"
-                  className="inline-block w-6 h-6"
-                />
+                Remove from cart
               </button>
             </div>
           );

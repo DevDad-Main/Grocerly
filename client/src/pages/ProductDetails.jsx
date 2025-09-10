@@ -5,7 +5,14 @@ import { assets } from "../assets/assets";
 import ProductCard from "../components/ProductCard";
 
 const ProductDetails = () => {
-  const { products, navigate, currency, addProductToCart } = useAppContext();
+  const {
+    products,
+    navigate,
+    currency,
+    addProductToCart,
+    removeProductFromCart,
+    cartItems,
+  } = useAppContext();
 
   const { id } = useParams();
 
@@ -13,17 +20,17 @@ const ProductDetails = () => {
   const [thumbnail, setThumbnail] = useState(null);
 
   const product = products.find((item) => item._id === id);
+  const quantity =
+    cartItems.find((item) => item.product._id === id)?.quantity || 0;
 
   useEffect(() => {
-    if (products.length > 0) {
-      // let productsCopy = products.slice();
+    if (products.length > 0 && product) {
       const productsCopy = products.filter(
-        (item) => product.category === item.category,
+        (item) => product.category === item.category && item._id !== id,
       );
-      // Returns 5 related products
       setRelatedProducts(productsCopy.slice(0, 5));
     }
-  }, [products]);
+  }, [products, product]);
 
   useEffect(() => {
     setThumbnail(product?.image[0] ? product.image[0] : null);
@@ -101,16 +108,38 @@ const ProductDetails = () => {
             </ul>
 
             <div className="flex items-center mt-10 gap-4 text-base">
-              <button
-                onClick={() => addProductToCart(product._id)}
-                className="w-full py-3.5 cursor-pointer font-medium bg-gray-100 text-gray-800/80 hover:bg-gray-200 hover:-translate-y-0.5  transition duration-200 rounded-lg"
-              >
-                Add to Cart
-              </button>
+              {quantity === 0 ? (
+                <button
+                  onClick={() => addProductToCart(product._id)}
+                  className="w-full py-3.5 cursor-pointer font-medium bg-gray-100 text-gray-800/80 hover:bg-gray-200 hover:-translate-y-0.5 transition duration-200 rounded-lg"
+                >
+                  Add to Cart
+                </button>
+              ) : (
+                <div className="flex items-center justify-center gap-2 w-full h-[44px] bg-primary/25 rounded select-none">
+                  <button
+                    onClick={() => removeProductFromCart(product._id)}
+                    className="cursor-pointer text-lg px-4 h-full"
+                  >
+                    -
+                  </button>
+
+                  <span className="w-8 text-center text-lg font-medium">
+                    {quantity}
+                  </span>
+
+                  <button
+                    onClick={() => addProductToCart(product._id)}
+                    className="cursor-pointer text-lg px-4 h-full"
+                  >
+                    +
+                  </button>
+                </div>
+              )}
 
               <button
                 onClick={() => {
-                  addToCart(product._id);
+                  addProductToCart(product._id);
                   navigate("/cart");
                 }}
                 className="w-full py-3.5 cursor-pointer font-medium bg-primary text-white hover:bg-primary-dull hover:-translate-y-0.5 transition duration-200 rounded-lg"

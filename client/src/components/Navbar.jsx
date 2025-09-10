@@ -37,7 +37,7 @@ const Navbar = () => {
     if (searchQuery.length > 0) {
       navigate("/products");
     }
-  }, [searchQuery, getCartCount]);
+  }, [searchQuery]);
 
   return (
     <div>

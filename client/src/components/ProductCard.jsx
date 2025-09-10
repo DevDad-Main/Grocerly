@@ -7,11 +7,14 @@ const ProductCard = ({ product }) => {
   const {
     currency,
     addProductToCart,
-    removeFromCart,
+    removeProductFromCart,
     navigate,
     cartItems,
     axios,
   } = useAppContext();
+
+  const cartEntry = cartItems.find((item) => item.product._id === product._id);
+  const quantity = cartEntry ? cartEntry.quantity : 0;
 
   return (
     product && (
@@ -69,7 +72,7 @@ const ProductCard = ({ product }) => {
               }}
               className="text-primary"
             >
-              {!cartItems[product._id] ? (
+              {quantity === 0 ? (
                 <button
                   className="flex items-center justify-center gap-1 bg-primary/10 border border-primary/40 md:w-[80px] w-[64px] h-[34px] rounded cursor-pointer"
                   onClick={() => addProductToCart(product._id)}
@@ -80,15 +83,13 @@ const ProductCard = ({ product }) => {
               ) : (
                 <div className="flex items-center justify-center gap-2 md:w-20 w-16 h-[34px] bg-primary/25 rounded select-none">
                   <button
-                    onClick={() => removeFromCart(product._id)}
+                    onClick={() => removeProductFromCart(product._id)}
                     className="cursor-pointer text-md px-2 h-full"
                   >
                     -
                   </button>
 
-                  <span className="w-5 text-center">
-                    {cartItems[product._id]}
-                  </span>
+                  <span className="w-5 text-center">{quantity}</span>
 
                   <button
                     onClick={() => addProductToCart(product._id)}

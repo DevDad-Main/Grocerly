@@ -124,3 +124,32 @@ export const removeItemFromCart = async (req, res) => {
   }
 };
 //#endregion
+
+//#region Remove From Cart
+export const removeFromCart = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    const { productId } = req.body;
+    console.log(productId);
+
+    if (!isValidObjectId(userId) || !isValidObjectId(productId)) {
+      return res.json({
+        success: false,
+        message: "Invalid User Id or ProductId",
+      });
+    }
+
+    await User.updateOne(
+      { _id: userId },
+      { $pull: { cartItems: { product: productId } } },
+    );
+
+    return res.status(200).json({ success: true, message: "Product Removed" });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
+//#endregion
