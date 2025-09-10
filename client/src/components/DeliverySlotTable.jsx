@@ -9,23 +9,38 @@ const DeliverySlotTable = () => {
   const [windowStart, setWindowStart] = useState(0);
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
 
-  const { navigate, axios, setDraftOrder } = useAppContext();
+  const { navigate, axios, setDraftOrder, user } = useAppContext();
 
   const DAYS_TO_FETCH = 14; // get 2 weeks worth
 
-  useEffect(() => {
-    const fetchSlots = async () => {
-      try {
-        const res = await axios.get(
-          `/api/v1/delivery/slots?days=${DAYS_TO_FETCH}`,
+  const fetchSlots = async () => {
+    try {
+      const { data } = await axios.get(
+        `/api/v1/delivery/slots?days=${DAYS_TO_FETCH}`,
+      );
+
+      if (data.success) {
+        setSlots(data.deliverySlots);
+
+        // setSlots(fetchedSlots);
+        //
+        // auto-restore confirmed slot
+        const mySlot = data.deliverySlots.find(
+          (s) =>
+            s.status === "reserved" &&
+            String(s.reservedBy?._id || s.reservedBy) === String(user?._id),
         );
-        setSlots(res.data.deliverySlots); // [{date, time, status, ...}, ...]
-      } catch (err) {
-        console.error("Failed to fetch slots", err);
+
+        if (mySlot) {
+          setConfirmedSlot(mySlot._id);
+        }
+      } else {
+        toast.error(data.message);
       }
-    };
-    fetchSlots();
-  }, []);
+    } catch (err) {
+      console.error("Failed to fetch slots", err);
+    }
+  };
 
   // Group slots by day
   const groupedByDay = slots.reduce((acc, slot) => {
@@ -58,6 +73,7 @@ const DeliverySlotTable = () => {
       if (data.success) {
         setConfirmedSlot(selectedSlot._id);
         setSelectedSlot(null);
+        fetchSlots();
       } else {
         toast.error(data.message);
       }
@@ -71,13 +87,20 @@ const DeliverySlotTable = () => {
     if (!confirmedSlot) return;
 
     try {
-      await axios.post("/api/v1/delivery/slots/release", {
+      const { data } = await axios.post("/api/v1/delivery/slots/release", {
         slotId: confirmedSlot,
       });
 
-      setConfirmedSlot(null);
-      setSelectedSlot(null);
+      if (data.success) {
+        setConfirmedSlot(null);
+        setSelectedSlot(null);
+        toast.success(data.message);
+        fetchSlots();
+      } else {
+        toast.error(data.message);
+      }
     } catch (err) {
+      toast.error(err.message);
       console.error("Error removing slot", err);
     }
   };
@@ -99,6 +122,10 @@ const DeliverySlotTable = () => {
       navigate("/products");
     }
   };
+
+  useEffect(() => {
+    fetchSlots();
+  }, [user?._id]); // re-run if user changes
 
   const canConfirm = selectedSlot && !confirmedSlot;
   const canRemove = confirmedSlot !== null;
@@ -188,24 +215,41 @@ const DeliverySlotTable = () => {
 
                   if (!slot) return null;
 
+                  {
+                    /* const isSelected = selectedSlot?._id === slot._id; */
+                  }
+                  {
+                    /* const isConfirmed = confirmedSlot === slot._id; */
+                  }
+
+                  const isReserved = slot.status === "reserved";
+                  const isMine =
+                    isReserved &&
+                    String(slot.reservedBy?._id || slot.reservedBy) ===
+                      String(user?._id);
                   const isSelected = selectedSlot?._id === slot._id;
-                  const isConfirmed = confirmedSlot === slot._id;
+                  const isConfirmed = confirmedSlot === slot._id || isMine;
 
                   return (
                     <button
                       key={slot._id}
                       onClick={() => setSelectedSlot(slot)}
-                      disabled={hasConfirmedSlot && !isConfirmed}
+                      disabled={
+                        (confirmedSlot && confirmedSlot !== slot._id) || // only keep confirmed clickable
+                        (isReserved && !isMine) // others' reservations blocked
+                      }
                       className={`py-3 px-3 rounded-xl border text-sm font-medium transition shadow-sm
-                  ${
-                    isConfirmed
-                      ? "bg-red-500 text-white border-red-600"
-                      : isSelected
-                        ? "bg-primary text-white border-primary"
-                        : slot.status === "reserved"
-                          ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
-                          : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-primary/10"
-                  }`}
+                      ${
+                        isMine
+                          ? "bg-red-500 text-white border-red-600 cursor-pointer" // your slot → red
+                          : isConfirmed
+                            ? "bg-primary text-white border-primary"
+                            : isSelected
+                              ? "bg-primary text-white border-primary"
+                              : isReserved
+                                ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
+                                : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-primary/10"
+                      }`}
                     >
                       {slot.time}
                     </button>

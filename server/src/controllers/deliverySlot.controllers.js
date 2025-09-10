@@ -16,7 +16,9 @@ export const getDeliverySlots = async (req, res) => {
 
     const deliverySlots = await DeliverySlot.find({
       date: { $gte: today, $lt: endDate },
-    }).sort({ date: 1, time: 1 });
+    })
+      .sort({ date: 1, time: 1 })
+      .populate("reservedBy", "_id");
 
     return res.status(200).json({
       success: true,
@@ -63,6 +65,52 @@ export const reserveDeliverySlot = async (req, res) => {
     session.endSession();
 
     return res.status(200).json({ success: true, message: "Slot Reserved" });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
+//#endregion
+
+//#region Release Delvivery Slot -> api/v1/delivery/slots/release
+export const releaseDeliverySlot = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const { slotId } = req.body;
+    const userId = req.user?._id;
+
+    if (!isValidObjectId(slotId) || !isValidObjectId(userId)) {
+      return res.json({
+        success: false,
+        message: "Invalid Slot Id or User Id",
+      });
+    }
+
+    const draftOrder = await DraftOrder.findOneAndDelete(
+      { userId },
+      { session },
+    );
+
+    if (draftOrder?.deliverySlot) {
+      await DeliverySlot.findByIdAndUpdate(
+        draftOrder.deliverySlot,
+        {
+          reservedBy: null,
+          status: "available",
+        },
+        { session },
+      );
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(200).json({ success: true, message: "Slot Released" });
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
