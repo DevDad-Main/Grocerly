@@ -2,62 +2,85 @@ import React, { useState, useEffect } from "react";
 import { useAppContext } from "../context/AppContext";
 
 const DeliverySlotTable = () => {
-  const { navigate } = useAppContext();
-  const [selectedSlot, setSelectedSlot] = useState(null); // temp selection
-  const [confirmedSlot, setConfirmedSlot] = useState(null); // locked-in slot
-  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  const [slots, setSlots] = useState([]); // fetched from backend
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [confirmedSlot, setConfirmedSlot] = useState(null);
   const [windowStart, setWindowStart] = useState(0);
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
 
-  // Generate next 15 days
-  const allDays = Array.from({ length: 15 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() + i);
-    return {
-      label: date.toLocaleDateString("en-GB", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-      }),
-      value: date.toISOString().split("T")[0],
+  const { navigate, axios } = useAppContext();
+
+  const DAYS_TO_FETCH = 14; // get 2 weeks worth
+
+  useEffect(() => {
+    const fetchSlots = async () => {
+      try {
+        const res = await axios.get(
+          `/api/v1/delivery/slots?days=${DAYS_TO_FETCH}`,
+        );
+        setSlots(res.data.deliverySlots); // [{date, time, status, ...}, ...]
+      } catch (err) {
+        console.error("Failed to fetch slots", err);
+      }
     };
-  });
+    fetchSlots();
+  }, []);
+
+  // Group slots by day
+  const groupedByDay = slots.reduce((acc, slot) => {
+    const day = new Date(slot.date).toISOString().split("T")[0];
+    if (!acc[day]) acc[day] = [];
+    acc[day].push(slot);
+    return acc;
+  }, {});
+
+  const allDays = Object.keys(groupedByDay).map((day) => ({
+    label: new Date(day).toLocaleDateString("en-GB", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+    }),
+    value: day,
+  }));
 
   const currentDay = allDays[selectedDayIndex];
 
-  const slotGroups = {
-    Morning: ["9:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00"],
-    Afternoon: ["12:00 - 1:00", "1:00 - 2:00", "2:00 - 3:00", "3:00 - 4:00"],
-    Evening: ["4:00 - 5:00", "5:00 - 6:00", "6:00 - 7:00"],
-  };
+  const handleConfirm = async () => {
+    if (!selectedSlot) return;
 
-  const hasConfirmedSlot = !!confirmedSlot;
-  const canConfirm = selectedSlot && !hasConfirmedSlot;
-  const canRemove = hasConfirmedSlot;
+    try {
+      // Reserve on backend
+      const { data } = await axios.post("/api/v1/delivery/slots/reserve", {
+        slotId: selectedSlot._id,
+      });
 
-  const slotData = selectedSlot
-    ? {
-        date: currentDay.value,
-        time: selectedSlot.split(" ")[1] + "-" + selectedSlot.split(" ")[3],
-        full: selectedSlot,
+      if (data.success) {
+        setConfirmedSlot(selectedSlot._id);
+        setSelectedSlot(null);
       }
-    : null;
-
-  const handleConfirm = () => {
-    if (canConfirm) {
-      setConfirmedSlot(selectedSlot);
-      setSelectedSlot(null);
-      console.log("Confirmed slot:", slotData);
-      // Replace console.log with your API call to save the slot
+    } catch (err) {
+      console.error("Error reserving slot", err);
     }
   };
 
-  const handleRemove = () => {
-    if (canRemove) {
-      console.log("Removed slot:", confirmedSlot);
+  const handleRemove = async () => {
+    if (!confirmedSlot) return;
+
+    try {
+      await axios.post("/api/v1/delivery/slots/release", {
+        slotId: confirmedSlot,
+      });
+
       setConfirmedSlot(null);
       setSelectedSlot(null);
+    } catch (err) {
+      console.error("Error removing slot", err);
     }
   };
+
+  const canConfirm = selectedSlot && !confirmedSlot;
+  const canRemove = confirmedSlot !== null;
+  const hasConfirmedSlot = confirmedSlot !== null;
 
   return (
     <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-4xl mx-auto mt-10">
@@ -118,38 +141,61 @@ const DeliverySlotTable = () => {
         </button>
       </div>
 
-      {/* Slots */}
-      {Object.entries(slotGroups).map(([groupName, slots]) => (
-        <div key={groupName} className="mb-4">
-          <p className="text-sm font-medium text-gray-500 mb-2">{groupName}</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {slots.map((time) => {
-              const slotId = `${currentDay.value} ${time}`;
-              const isSelected = selectedSlot === slotId;
-              const isConfirmed = confirmedSlot === slotId;
+      {/* Slots grouped by time */}
+      {currentDay && groupedByDay[currentDay.value] ? (
+        <>
+          {Object.entries({
+            Morning: ["9:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00"],
+            Afternoon: [
+              "12:00 - 13:00",
+              "13:00 - 14:00",
+              "14:00 - 15:00",
+              "15:00 - 16:00",
+            ],
+            Evening: ["16:00 - 17:00", "17:00 - 18:00", "18:00 - 19:00"],
+          }).map(([groupName, times]) => (
+            <div key={groupName} className="mb-4">
+              <p className="text-sm font-medium text-gray-500 mb-2">
+                {groupName}
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {times.map((time) => {
+                  const slot = groupedByDay[currentDay.value].find(
+                    (s) => s.time === time,
+                  );
 
-              return (
-                <button
-                  key={time}
-                  onClick={() => setSelectedSlot(slotId)}
-                  disabled={hasConfirmedSlot && !isConfirmed} // prevent selecting others
-                  className={`py-3 px-3 rounded-xl border text-sm font-medium transition shadow-sm
-                    ${
-                      isConfirmed
-                        ? "bg-red-500 text-white border-red-600"
-                        : isSelected
-                          ? "bg-primary text-white border-primary"
+                  if (!slot) return null;
+
+                  const isSelected = selectedSlot?._id === slot._id;
+                  const isConfirmed = confirmedSlot === slot._id;
+
+                  return (
+                    <button
+                      key={slot._id}
+                      onClick={() => setSelectedSlot(slot)}
+                      disabled={hasConfirmedSlot && !isConfirmed}
+                      className={`py-3 px-3 rounded-xl border text-sm font-medium transition shadow-sm
+                  ${
+                    isConfirmed
+                      ? "bg-red-500 text-white border-red-600"
+                      : isSelected
+                        ? "bg-primary text-white border-primary"
+                        : slot.status === "reserved"
+                          ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
                           : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-primary/10"
-                    }`}
-                >
-                  {time}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ))}
-
+                  }`}
+                    >
+                      {slot.time}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </>
+      ) : (
+        <p>No slots available</p>
+      )}
       {/* Actions */}
       <div className="flex justify-between items-center mt-6">
         <button
@@ -174,7 +220,11 @@ const DeliverySlotTable = () => {
         </button>
         <button
           onClick={() => navigate("/cart")}
-          className={`${hasConfirmedSlot ? "ml-2 bg-primary p-2 text-white rounded-lg cursor-pointer" : "hidden"}`}
+          className={`${
+            hasConfirmedSlot
+              ? "ml-2 bg-primary p-2 text-white rounded-lg cursor-pointer"
+              : "hidden"
+          }`}
         >
           Checkout
         </button>

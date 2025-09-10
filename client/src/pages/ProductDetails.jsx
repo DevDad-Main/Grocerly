@@ -12,6 +12,7 @@ const ProductDetails = () => {
     addProductToCart,
     removeProductFromCart,
     cartItems,
+    draftOrder,
   } = useAppContext();
 
   const { id } = useParams();
@@ -110,7 +111,13 @@ const ProductDetails = () => {
             <div className="flex items-center mt-10 gap-4 text-base">
               {quantity === 0 ? (
                 <button
-                  onClick={() => addProductToCart(product._id)}
+                  onClick={async () => {
+                    if (!draftOrder?.deliverySlot) {
+                      navigate("/delivery-slot");
+                    } else {
+                      await addProductToCart(product._id);
+                    }
+                  }}
                   className="w-full py-3.5 cursor-pointer font-medium bg-gray-100 text-gray-800/80 hover:bg-gray-200 hover:-translate-y-0.5 transition duration-200 rounded-lg"
                 >
                   Add to Cart
@@ -138,9 +145,13 @@ const ProductDetails = () => {
               )}
 
               <button
-                onClick={() => {
-                  addProductToCart(product._id);
-                  navigate("/cart");
+                onClick={async () => {
+                  if (!draftOrder?.deliverySlot) {
+                    navigate("/delivery-slot");
+                  } else {
+                    await addProductToCart(product._id);
+                    navigate("/cart");
+                  }
                 }}
                 className="w-full py-3.5 cursor-pointer font-medium bg-primary text-white hover:bg-primary-dull hover:-translate-y-0.5 transition duration-200 rounded-lg"
               >

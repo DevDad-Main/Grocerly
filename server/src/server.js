@@ -11,6 +11,7 @@ import productRoutes from "./routes/product.routes.js";
 import cartRoutes from "./routes/cart.routes.js";
 import addressRoutes from "./routes/address.routes.js";
 import orderRoutes from "./routes/order.routes.js";
+import deliveryRoutes from "./routes/deliverySlot.routes.js";
 import { generateSlots } from "./utils/generateDeliverySlots.utils.js";
 
 //#region CONSTANTS
@@ -59,6 +60,7 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/address", addressRoutes);
 app.use("/api/v1/order", orderRoutes);
+app.use("/api/v1/delivery", deliveryRoutes);
 //#endregion
 
 //#region MONGO CONNECTION

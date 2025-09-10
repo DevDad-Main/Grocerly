@@ -16,9 +16,10 @@ export const AppContextProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [products, setProducts] = useState([]);
-
   const [cartItems, setCartItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState({});
+  const [draftOrder, setDraftOrder] = useState(null); // holds current cart + slot info
+  const [selectedSlot, setSelectedSlot] = useState(null); // confirmed slot
 
   //#region Fetch Admin
   const fetchAdmin = async () => {
@@ -251,6 +252,10 @@ export const AppContextProvider = ({ children }) => {
     fetchUser,
     getCartItems,
     removeProductFromCart,
+    draftOrder,
+    setDraftOrder,
+    selectedSlot,
+    setSelectedSlot,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

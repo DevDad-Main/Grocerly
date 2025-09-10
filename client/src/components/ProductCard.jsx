@@ -11,11 +11,25 @@ const ProductCard = ({ product }) => {
     navigate,
     cartItems,
     axios,
+    user,
+    draftOrder,
   } = useAppContext();
 
   const cartEntry = cartItems.find((item) => item.product._id === product._id);
   const quantity = cartEntry ? cartEntry.quantity : 0;
 
+  const handleAddToCart = async (productId) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    if (!draftOrder?.deliverySlot) {
+      navigate("/delivery-slot");
+      return;
+    }
+    await addProductToCart(productId);
+  };
   return (
     product && (
       <div
@@ -75,7 +89,7 @@ const ProductCard = ({ product }) => {
               {quantity === 0 ? (
                 <button
                   className="flex items-center justify-center gap-1 bg-primary/10 border border-primary/40 md:w-[80px] w-[64px] h-[34px] rounded cursor-pointer"
-                  onClick={() => addProductToCart(product._id)}
+                  onClick={() => handleAddToCart(product._id)}
                 >
                   <img src={assets.cart_icon} alt="add icon" />
                   Add
@@ -92,7 +106,7 @@ const ProductCard = ({ product }) => {
                   <span className="w-5 text-center">{quantity}</span>
 
                   <button
-                    onClick={() => addProductToCart(product._id)}
+                    onClick={() => handleAddToCart(product._id)}
                     className="cursor-pointer text-md px-2 h-full"
                   >
                     +
