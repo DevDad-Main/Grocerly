@@ -1,5 +1,6 @@
 import { isValidObjectId } from "mongoose";
 import { User } from "../model/User.model.js";
+import { DraftOrder } from "../model/DraftOrder.model.js";
 
 //#region Update User Cart -> api/v1/cart/update-cart
 export const updateUserCart = async (req, res) => {
@@ -36,7 +37,9 @@ export const getUserCart = async (req, res) => {
       return res.json({ success: false, message: "Invalid User Id" });
     }
 
-    const user = await User.findById(userId).populate("cartItems.product");
+    const user = await DraftOrder.findOne({ userId }).populate(
+      "cartItems.product",
+    );
 
     return res
       .status(200)
@@ -64,15 +67,15 @@ export const addItemToCart = async (req, res) => {
     }
 
     //NOTE: product in cart → Increment It
-    const updated = await User.updateOne(
-      { _id: userId, "cartItems.product": productId },
+    const updated = await DraftOrder.updateOne(
+      { userId, "cartItems.product": productId },
       { $inc: { "cartItems.$.quantity": 1 } },
     );
 
     //NOTE: product not in cart → Add It
     if (updated.modifiedCount === 0) {
-      await User.updateOne(
-        { _id: userId },
+      await DraftOrder.updateOne(
+        { userId },
         { $push: { cartItems: { product: productId, quantity: 1 } } },
       );
     }
@@ -103,14 +106,14 @@ export const removeItemFromCart = async (req, res) => {
     }
 
     //NOTE: product in cart → Decrement Quantity by 1
-    await User.updateOne(
-      { _id: userId, "cartItems.product": productId },
+    await DraftOrder.updateOne(
+      { userId, "cartItems.product": productId },
       { $inc: { "cartItems.$.quantity": -1 } },
     );
 
     //NOTE: Once quantity hits 0 then we pull this product from our cartItems Array
-    await User.updateOne(
-      { _id: userId },
+    await DraftOrder.updateOne(
+      { userId },
       { $pull: { cartItems: { product: productId, quantity: { $lte: 0 } } } },
     );
     return res
@@ -139,8 +142,8 @@ export const removeFromCart = async (req, res) => {
       });
     }
 
-    await User.updateOne(
-      { _id: userId },
+    await DraftOrder.updateOne(
+      { userId },
       { $pull: { cartItems: { product: productId } } },
     );
 

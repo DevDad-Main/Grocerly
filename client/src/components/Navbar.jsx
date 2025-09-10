@@ -15,8 +15,6 @@ const Navbar = () => {
     searchQuery,
     getCartCount,
     axios,
-    setDraftOrder,
-    setSelectedSlot,
   } = useAppContext();
 
   const logout = async () => {
@@ -25,6 +23,7 @@ const Navbar = () => {
 
       if (data.success) {
         setUser(null);
+
         navigate("/");
         toast.success(data.message);
       } else {

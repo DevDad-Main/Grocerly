@@ -73,7 +73,14 @@ const DeliverySlotTable = () => {
       if (data.success) {
         setConfirmedSlot(selectedSlot._id);
         setSelectedSlot(null);
-        fetchSlots();
+        setSlots((prev) =>
+          prev.map((s) =>
+            s._id === selectedSlot._id
+              ? { ...s, status: "reserved", reservedBy: user._id }
+              : s,
+          ),
+        );
+        // fetchSlots();
       } else {
         toast.error(data.message);
       }

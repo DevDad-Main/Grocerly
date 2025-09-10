@@ -5,7 +5,7 @@ const draftOrderSchema = new mongoose.Schema({
   cartItems: [
     {
       product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
-      quantity: Number,
+      quantity: { type: Number },
     },
   ],
   deliverySlot: { type: mongoose.Schema.Types.ObjectId, ref: "DeliverySlot" },

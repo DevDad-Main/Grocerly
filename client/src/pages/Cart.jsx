@@ -14,6 +14,7 @@ const Cart = () => {
     addProductToCart,
     removeProductFromCart,
     removeFromCart,
+    draftOrder,
   } = useAppContext();
 
   const [showAddress, setShowAddress] = useState(false);
@@ -23,10 +24,18 @@ const Cart = () => {
   const [paymentOption, setPaymentOption] = useState("COD");
 
   //NOTE: Only keeping this func call here as we are getting the card and specifically setting the cart array to our cartItems
+  // const getUserCart = async () => {
+  //   const { data } = await axios.get("/api/v1/cart/get-cart");
+  //   if (data.success) {
+  //     setCartArray(data.user.cartItems);
+  //   }
+  // };
+
   const getUserCart = async () => {
     const { data } = await axios.get("/api/v1/cart/get-cart");
     if (data.success) {
-      setCartArray(data.user.cartItems);
+      console.log(data);
+      setCartArray(data?.user?.cartItems);
     }
   };
 
@@ -187,6 +196,24 @@ const Cart = () => {
                 </p>
               </div>
             )}
+          </div>
+
+          <p className="text-sm font-medium uppercase mt-6">Delivery Slot</p>
+          <div className="text-gray-500 mt-4 space-y-2">
+            <p className="flex justify-between">
+              <span>Delivery Date:</span>
+              <span>
+                {draftOrder
+                  ? draftOrder?.deliverySlot?.date.split("T")[0]
+                  : "No Slot Found"}
+              </span>
+            </p>
+            <p className="flex justify-between">
+              <span>Delivery Time:</span>
+              <span>
+                {draftOrder ? draftOrder?.deliverySlot?.time : "No Slot Found"}
+              </span>
+            </p>
           </div>
 
           <p className="text-sm font-medium uppercase mt-6">Payment Method</p>
