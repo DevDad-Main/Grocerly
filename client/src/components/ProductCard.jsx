@@ -10,9 +10,9 @@ const ProductCard = ({ product }) => {
     removeProductFromCart,
     navigate,
     cartItems,
-    axios,
     user,
     draftOrder,
+    setShowUserLogin,
   } = useAppContext();
 
   const cartEntry = cartItems.find((item) => item.product._id === product._id);
@@ -20,7 +20,7 @@ const ProductCard = ({ product }) => {
 
   const handleAddToCart = async (productId) => {
     if (!user) {
-      navigate("/login");
+      setShowUserLogin(true);
       return;
     }
 

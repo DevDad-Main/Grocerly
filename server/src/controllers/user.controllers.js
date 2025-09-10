@@ -1,7 +1,9 @@
 import { User } from "../model/User.model.js";
 import bcrypt from "bcryptjs";
 import generateUserToken from "../utils/generateToken.utils.js";
-import { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
+import { DraftOrder } from "../model/DraftOrder.model.js";
+import { DeliverySlot } from "../model/DeliverySlot.model.js";
 
 //#region CONSTANTS
 const SALT_ROUNDS = 12;
@@ -104,12 +106,43 @@ export const loginUser = async (req, res) => {
 
 //#region Logout User -> api/v1/user/logout
 export const logoutUser = async (req, res) => {
+  const session = await mongoose.startSession();
   try {
+    session.startTransaction();
+
+    const userId = req.user?._id;
+
+    if (!isValidObjectId(userId)) {
+      return res.json({ success: false, message: "Invalid User Id" });
+    }
+
+    const draftOrder = await DraftOrder.findOneAndDelete(
+      { userId },
+      { session },
+    );
+
+    if (draftOrder?.deliverySlot) {
+      await DeliverySlot.findByIdAndUpdate(
+        draftOrder.deliverySlot,
+        {
+          reservedBy: null,
+          status: "available",
+        },
+        { session },
+      );
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
     return res
       .status(200)
       .clearCookie("token", options)
       .json({ success: true, message: "User logged out" });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
     return res.status(error.status || 500).json({
       status: error.status || 500,
       message: error.message,

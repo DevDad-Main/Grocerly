@@ -15,6 +15,8 @@ const Navbar = () => {
     searchQuery,
     getCartCount,
     axios,
+    setDraftOrder,
+    setSelectedSlot,
   } = useAppContext();
 
   const logout = async () => {
@@ -22,9 +24,9 @@ const Navbar = () => {
       const { data } = await axios.get("/api/v1/user/logout");
 
       if (data.success) {
-        toast.success(data.message);
         setUser(null);
         navigate("/");
+        toast.success(data.message);
       } else {
         toast.error(data.message);
       }
@@ -32,6 +34,20 @@ const Navbar = () => {
       toast.error(error.message);
     }
   };
+
+  // const removeDraftOrder = async () => {
+  //   try {
+  //     const { data } = await axios.post("/api/v1/draft-order/remove");
+  //     if (data.success) {
+  //       setDraftOrder(null);
+  //       setSelectedSlot(null);
+  //     } else {
+  //       toast.error(data.message);
+  //     }
+  //   } catch (error) {
+  //     toast.error(error.message);
+  //   }
+  // };
 
   useEffect(() => {
     if (searchQuery.length > 0) {

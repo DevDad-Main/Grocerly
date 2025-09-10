@@ -1,6 +1,7 @@
 import mongoose, { isValidObjectId } from "mongoose";
 import { DeliverySlot } from "../model/DeliverySlot.model.js";
 import { Order } from "../model/Order.model.js";
+import { DraftOrder } from "../model/DraftOrder.model.js";
 
 //#region Get All Delivery Slots -> api/v1/delivery/slots
 export const getDeliverySlots = async (req, res) => {
@@ -51,13 +52,24 @@ export const reserveDeliverySlot = async (req, res) => {
       status: "reserved",
     }).session(session);
 
-    const order = await Order.create({}).session(session);
-    console.log(deliverySlot);
+    const draftOrder = new DraftOrder({
+      userId,
+      deliverySlot,
+    });
+
+    await draftOrder.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
     return res.status(200).json({ success: true, message: "Slot Reserved" });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     return res.status(error.status || 500).json({
       status: error.status || 500,
-      message: error.error.message,
+      message: error.message,
     });
   }
 };
+//#endregion

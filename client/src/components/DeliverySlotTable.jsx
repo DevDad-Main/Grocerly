@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
 
 const DeliverySlotTable = () => {
   const [slots, setSlots] = useState([]); // fetched from backend
@@ -8,7 +9,7 @@ const DeliverySlotTable = () => {
   const [windowStart, setWindowStart] = useState(0);
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
 
-  const { navigate, axios } = useAppContext();
+  const { navigate, axios, setDraftOrder } = useAppContext();
 
   const DAYS_TO_FETCH = 14; // get 2 weeks worth
 
@@ -57,8 +58,11 @@ const DeliverySlotTable = () => {
       if (data.success) {
         setConfirmedSlot(selectedSlot._id);
         setSelectedSlot(null);
+      } else {
+        toast.error(data.message);
       }
     } catch (err) {
+      toast.error(err.message);
       console.error("Error reserving slot", err);
     }
   };
@@ -75,6 +79,24 @@ const DeliverySlotTable = () => {
       setSelectedSlot(null);
     } catch (err) {
       console.error("Error removing slot", err);
+    }
+  };
+
+  const handleContinueShopping = async () => {
+    try {
+      const { data } = await axios.get("/api/v1/draft-order/order");
+      if (data.success) {
+        // Store draft order in context or state
+        setDraftOrder(data.draftOrder);
+        console.log("Draft order:", data.draftOrder);
+        navigate("/products");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+      console.error("Failed to fetch draft order", error);
+      navigate("/products");
     }
   };
 
@@ -219,14 +241,14 @@ const DeliverySlotTable = () => {
           Confirm Slot
         </button>
         <button
-          onClick={() => navigate("/cart")}
+          onClick={handleContinueShopping}
           className={`${
             hasConfirmedSlot
               ? "ml-2 bg-primary p-2 text-white rounded-lg cursor-pointer"
               : "hidden"
           }`}
         >
-          Checkout
+          Continue Shopping
         </button>
       </div>
     </div>
