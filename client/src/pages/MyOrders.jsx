@@ -1,18 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { dummyOrders } from "../assets/assets";
+import toast from "react-hot-toast";
 
 const MyOrders = () => {
   const [myOrders, setMyOrders] = useState([]);
-  const { currency } = useAppContext();
+  const { currency, axios, user } = useAppContext();
 
   const fetchOrders = async () => {
-    setMyOrders(dummyOrders);
+    try {
+      const { data } = await axios.get("/api/v1/order/orders");
+      if (data.success) {
+        setMyOrders(data.orders);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    if (user) fetchOrders();
+  }, [user]);
 
   return (
     <div className="mt-16 pb-16">
@@ -29,7 +39,7 @@ const MyOrders = () => {
             <span>Order ID: {order._id}</span>
             <span>Payment: {order.paymentType}</span>
             <span>
-              Total Amount: {order.amount} {currency}
+              Total Amount: {order.total} {currency}
             </span>
           </p>
           {order.items.map((item, index) => (
