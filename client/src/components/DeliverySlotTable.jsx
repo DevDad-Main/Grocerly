@@ -13,6 +13,16 @@ const DeliverySlotTable = () => {
 
   const DAYS_TO_FETCH = 14; // get 2 weeks worth
 
+  const isPastSlot = (slot) => {
+    const [startTime] = slot.time.split(" - "); // e.g. "9:00"
+    const [hours, minutes] = startTime.split(":").map(Number);
+
+    const slotDate = new Date(slot.date);
+    slotDate.setHours(hours, minutes, 0, 0);
+
+    return slotDate < new Date();
+  };
+
   const fetchSlots = async () => {
     try {
       const { data } = await axios.get(
@@ -236,26 +246,30 @@ const DeliverySlotTable = () => {
                       String(user?._id);
                   const isSelected = selectedSlot?._id === slot._id;
                   const isConfirmed = confirmedSlot === slot._id || isMine;
+                  const past = isPastSlot(slot);
 
                   return (
                     <button
                       key={slot._id}
                       onClick={() => setSelectedSlot(slot)}
                       disabled={
-                        (confirmedSlot && confirmedSlot !== slot._id) || // only keep confirmed clickable
-                        (isReserved && !isMine) // others' reservations blocked
+                        past ||
+                        (confirmedSlot && confirmedSlot !== slot._id) ||
+                        (isReserved && !isMine)
                       }
                       className={`py-3 px-3 rounded-xl border text-sm font-medium transition shadow-sm
                       ${
-                        isMine
-                          ? "bg-red-500 text-white border-red-600 cursor-pointer" // your slot → red
-                          : isConfirmed
-                            ? "bg-primary text-white border-primary"
-                            : isSelected
+                        past
+                          ? "bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed" // grey out past slots
+                          : isMine
+                            ? "bg-red-500 text-white border-red-600 cursor-pointer"
+                            : isConfirmed
                               ? "bg-primary text-white border-primary"
-                              : isReserved
-                                ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
-                                : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-primary/10"
+                              : isSelected
+                                ? "bg-primary text-white border-primary"
+                                : isReserved
+                                  ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
+                                  : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-primary/10"
                       }`}
                     >
                       {slot.time}
