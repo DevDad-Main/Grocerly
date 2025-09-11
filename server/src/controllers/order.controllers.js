@@ -1,7 +1,7 @@
 import mongoose, { isValidObjectId } from "mongoose";
-import { Product } from "../model/Product.model.js";
 import { Order } from "../model/Order.model.js";
 import { DraftOrder } from "../model/DraftOrder.model.js";
+import { DeliverySlot } from "../model/DeliverySlot.model.js";
 
 const threePercentTax = 0.03;
 

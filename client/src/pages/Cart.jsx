@@ -16,6 +16,7 @@ const Cart = () => {
     removeProductFromCart,
     removeFromCart,
     draftOrder,
+    setDraftOrder,
     user,
     setCartItems,
   } = useAppContext();
@@ -78,6 +79,7 @@ const Cart = () => {
         if (data.success) {
           toast.success(data.message);
           setCartItems([]);
+          setDraftOrder(null);
           navigate("/orders");
         } else {
           toast.error(data.message);

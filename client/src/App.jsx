@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import { Route, Routes, useLocation } from "react-router-dom";
@@ -18,7 +18,6 @@ import AddProduct from "./pages/admin/AddProduct";
 import ProductList from "./pages/admin/ProductList";
 import Orders from "./pages/admin/Orders";
 import NotFound from "./pages/NotFound";
-import DeliveryPage from "./pages/DeliveryPage";
 import DeliverySlotTable from "./components/DeliverySlotTable";
 
 const App = () => {
@@ -26,6 +25,7 @@ const App = () => {
 
   const { showUserLogin, isAdmin } = useAppContext();
 
+  useEffect(() => {}, [isAdmin]);
   return (
     <div className="text-default min-h-screen text-gray-700 bg-white">
       {isSellerPath ? null : <Navbar />}
