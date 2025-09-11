@@ -65,6 +65,7 @@ const Cart = () => {
     try {
       if (!selectedAddress) return toast.error("Please select an address");
       const cartTotal = (getCartAmount() + getCartAmount() * 0.03).toFixed(2);
+
       // Place an order with Cash
       if (paymentOption === "COD") {
         const { data } = await axios.post("/api/v1/order/place-order", {
@@ -81,6 +82,26 @@ const Cart = () => {
           setCartItems([]);
           setDraftOrder(null);
           navigate("/orders");
+        } else {
+          toast.error(data.message);
+        }
+      } else {
+        // We will place the order with stripe
+        const { data } = await axios.post("/api/v1/order/place-stripe", {
+          address: selectedAddress._id,
+          items: cartArray.map((item) => ({
+            product: item.product._id,
+            quantity: item.quantity,
+          })),
+          total: cartTotal,
+        });
+
+        if (data.success) {
+          window.location.replace(data.url);
+          // toast.success(data.message);
+          // setCartItems([]);
+          // setDraftOrder(null);
+          // navigate("/orders");
         } else {
           toast.error(data.message);
         }

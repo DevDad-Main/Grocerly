@@ -2,6 +2,9 @@ import mongoose, { isValidObjectId } from "mongoose";
 import { Order } from "../model/Order.model.js";
 import { DraftOrder } from "../model/DraftOrder.model.js";
 import { DeliverySlot } from "../model/DeliverySlot.model.js";
+import { Product } from "../model/Product.model.js";
+import { User } from "../model/User.model.js";
+import Stripe from "stripe";
 
 const threePercentTax = 0.03;
 
@@ -67,6 +70,133 @@ export const placeOrderWithCOD = async (req, res) => {
     });
   }
 };
+//#endregion
+
+//#region Place Order With Stripe -> api/v1/order/place-stripe
+export const placeOrderWithStripe = async (req, res) => {
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+    const userId = req.user?._id;
+    const { address, items, total } = req.body;
+    const { origin } = req.headers;
+
+    if (!isValidObjectId(userId)) {
+      return res.json({ success: false, message: "Invalid User Id" });
+    }
+
+    if (!address || items.length === 0 || total === 0) {
+      return res.json({
+        success: false,
+        message: "Invalid Address or Items or Ttal amount",
+      });
+    }
+
+    const user = await User.findOne({ _id: userId }).session(session);
+
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    // Fetch all products safely
+    const productIds = items.map((item) => item.product);
+    const products = await Product.find({ _id: { $in: productIds } });
+
+    // Build line items for Stripe
+    const line_items = items.map((item) => {
+      const product = products.find((p) => p._id.equals(item.product));
+      if (!product) {
+        throw new Error(`Product ${item.product} not found`);
+      }
+
+      return {
+        price_data: {
+          currency: "pln", // or "gbp" etc.
+          product_data: {
+            name: product.name,
+          },
+          unit_amount:
+            Math.floor(
+              product.offerPrice + product.offerPrice * threePercentTax,
+            ) * 100,
+        },
+        quantity: item.quantity,
+      };
+    });
+
+    const draftOrder = await DraftOrder.findOneAndDelete(
+      { userId },
+      { session },
+    );
+
+    if (draftOrder?.deliverySlot) {
+      await DeliverySlot.findByIdAndUpdate(
+        draftOrder.deliverySlot,
+        {
+          reservedBy: null,
+          status: "available",
+        },
+        { session },
+      );
+    }
+
+    const order = new Order({
+      userId,
+      items,
+      total,
+      address,
+      deliverySlot: draftOrder.deliverySlot,
+      paymentType: "Card",
+    });
+
+    await order.save({ session });
+
+    // const stripeSession = await stripe.checkout.sessions.create({
+    //   payment_method_types: ["card"],
+    //   line_items,
+    //   mode: "payment",
+    //   success_url: `${origin}/order-success?session_id={CHECKOUT_SESSION_ID}`,
+    //   cancel_url: `${origin}/cart`,
+    //   metadata: {
+    //     orderId: order._id.toString(),
+    //   },
+    // });
+
+    const stripeInstance = new Stripe(process.env.STRIPE_SK);
+    const stripeSession = await stripeInstance.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      line_items,
+      success_url: `${origin}/order-success?next=orders`,
+      cancel_url: `${origin}/cart`,
+      customer_email: user.email,
+      metadata: {
+        orderId: order._id.toString(),
+        userId: userId.toString(),
+      },
+    });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(201).json({
+      success: true,
+      url: stripeSession.url,
+      sessionId: stripeSession.id,
+      pk_test_key: process.env.STRIPE_PK,
+      message: "Order Placed",
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
+
 //#endregion
 
 //#region Get Orders For User -> api/v1/order/orders
