@@ -8,26 +8,33 @@ const threePercentTax = 0.03;
 export const placeOrderWithCOD = async (req, res) => {
   try {
     const userId = req.user?._id;
-    const { address, items } = req.body;
+    const { address, items, total } = req.body;
+
+    console.log("Address", address);
+    console.log("Items", items);
 
     if (!isValidObjectId(userId)) {
       return res.json({ success: false, message: "Invalid User Id" });
     }
-    if (!address || items.length === 0) {
-      return res.json({ success: false, message: "Invalid Address or Items" });
+    if (!address || items.length === 0 || total === 0) {
+      return res.json({
+        success: false,
+        message: "Invalid Address or Items or Ttal amount",
+      });
     }
 
-    let amount = await items.reduce(async (acc, item) => {
-      const product = await Product.findById(item.productId);
-      return (await acc) + product.offerPrice * item.quantity;
-    });
-
-    amount += Math.floor(amount * threePercentTax);
+    //
+    // let amount = await items.reduce(async (acc, item) => {
+    //   const product = await Product.findById(item.product);
+    //   return (await acc) + product.offerPrice * item.quantity;
+    // });
+    //
+    // amount += Math.floor(amount * threePercentTax);
 
     await Order.create({
       userId,
       items,
-      amount,
+      total,
       address,
       paymentType: "COD",
     });

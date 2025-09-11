@@ -15,6 +15,8 @@ const Navbar = () => {
     searchQuery,
     getCartCount,
     axios,
+    draftOrder,
+    setDraftOrder,
   } = useAppContext();
 
   const logout = async () => {
@@ -23,7 +25,7 @@ const Navbar = () => {
 
       if (data.success) {
         setUser(null);
-
+        setDraftOrder(null);
         navigate("/");
         toast.success(data.message);
       } else {
@@ -32,6 +34,20 @@ const Navbar = () => {
     } catch (error) {
       toast.error(error.message);
     }
+  };
+
+  const handleNavigateToCart = () => {
+    if (!user) {
+      setShowUserLogin(true);
+      return;
+    }
+
+    if (!draftOrder?.deliverySlot) {
+      navigate("/delivery-slot");
+      return;
+    }
+
+    navigate("/cart");
   };
 
   // const removeDraftOrder = async () => {
@@ -79,7 +95,7 @@ const Navbar = () => {
           </div>
 
           <div
-            onClick={() => navigate("/cart")}
+            onClick={handleNavigateToCart}
             className="relative cursor-pointer hover:-translate-y-0.5 transition-all duration-200"
           >
             <img

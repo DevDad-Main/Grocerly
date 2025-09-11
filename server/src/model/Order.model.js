@@ -23,7 +23,6 @@ const orderSchema = new mongoose.Schema(
       },
     ],
 
-    amount: { type: Number, required: true },
     total: { type: Number, required: true },
     paymentType: { type: String, enum: ["COD", "Card"], required: true },
     status: {

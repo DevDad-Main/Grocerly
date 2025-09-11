@@ -182,6 +182,7 @@ export const AppContextProvider = ({ children }) => {
   //#region Total Cart Items Count
   const getCartCount = () => {
     // Just returns the amount of products we have in the cart not quantity included
+    if (!draftOrder?.deliverySlot) return 0;
     return cartItems?.length;
   };
   //#endregion
@@ -256,6 +257,7 @@ export const AppContextProvider = ({ children }) => {
     setDraftOrder,
     selectedSlot,
     setSelectedSlot,
+    setCartItems,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

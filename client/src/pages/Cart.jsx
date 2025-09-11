@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { assets, dummyAddress } from "../assets/assets";
+import toast from "react-hot-toast";
 
 const Cart = () => {
   const {
@@ -15,12 +16,14 @@ const Cart = () => {
     removeProductFromCart,
     removeFromCart,
     draftOrder,
+    user,
+    setCartItems,
   } = useAppContext();
 
   const [showAddress, setShowAddress] = useState(false);
   const [cartArray, setCartArray] = useState([]);
-  const [addresses, setAddresses] = useState(dummyAddress);
-  const [selectedAddress, setSelectedAddress] = useState(dummyAddress[0]);
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
   const [paymentOption, setPaymentOption] = useState("COD");
 
   //NOTE: Only keeping this func call here as we are getting the card and specifically setting the cart array to our cartItems
@@ -31,16 +34,58 @@ const Cart = () => {
   //   }
   // };
 
+  const getUserAddresses = async () => {
+    try {
+      const { data } = await axios.get("/api/v1/address/get-addresses");
+
+      if (data.success) {
+        toast.success(data.message);
+        setAddresses(data.addresses);
+        if (data.addresses.length > 0) {
+          setSelectedAddress(data.addresses[0]);
+        }
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   const getUserCart = async () => {
     const { data } = await axios.get("/api/v1/cart/get-cart");
     if (data.success) {
       console.log(data);
-      setCartArray(data?.user?.cartItems);
+      setCartArray(data.user.cartItems);
     }
   };
 
   const placeOrder = async () => {
-    console.log("Order Placed");
+    try {
+      if (!selectedAddress) return toast.error("Please select an address");
+      const cartTotal = (getCartAmount() + getCartAmount() * 0.03).toFixed(2);
+      // Place an order with Cash
+      if (paymentOption === "COD") {
+        const { data } = await axios.post("/api/v1/order/place-order", {
+          address: selectedAddress._id,
+          items: cartArray.map((item) => ({
+            product: item.product._id,
+            quantity: item.quantity,
+          })),
+          total: cartTotal,
+        });
+
+        if (data.success) {
+          toast.success(data.message);
+          setCartItems([]);
+          navigate("/my-orders");
+        } else {
+          toast.error(data.message);
+        }
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
@@ -49,6 +94,13 @@ const Cart = () => {
     }
   }, [products, cartItems]);
 
+  useEffect(() => {
+    if (user) {
+      getUserAddresses();
+    }
+    console.log(cartArray);
+  }, [user]);
+
   return products.length > 0 && cartItems ? (
     <div className="flex flex-col md:flex-row mt-16">
       <div className="flex-1 max-w-4xl">
@@ -56,85 +108,84 @@ const Cart = () => {
           Shopping Cart{" "}
           <span className="text-sm text-primary">{getCartCount()} Items</span>
         </h1>
-
         <div className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 text-base font-medium pb-3">
           <p className="text-left">Product Details</p>
           <p className="text-center">Subtotal</p>
           <p className="text-center">Action</p>
         </div>
-
-        {cartArray.map((cartItem, index) => {
-          const product = cartItem.product; // the actual product
-          const quantity = cartItem.quantity;
-          const offerPrice = product.offerPrice;
-          return (
-            <div
-              key={index}
-              className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 items-center text-sm md:text-base font-medium pt-3"
-            >
-              <div className="flex items-center md:gap-6 gap-3">
+        {cartArray
+          ? cartArray.map((cartItem, index) => {
+              const product = cartItem.product; // the actual product
+              const quantity = cartItem.quantity;
+              const offerPrice = product.offerPrice;
+              return (
                 <div
-                  onClick={() => {
-                    navigate(
-                      `/products/${cartItem?.category?.tolowerCase()}/${product._id}`,
-                    );
-                    scrollTo(0, 0);
-                  }}
-                  className="cursor-pointer w-24 h-24 flex items-center justify-center border border-gray-300 rounded overflow-hidden"
+                  key={index}
+                  className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 items-center text-sm md:text-base font-medium pt-3"
                 >
-                  <img
-                    className="max-w-full h-full object-cover"
-                    src={product.image[0]}
-                    alt={product.name}
-                  />
-                </div>
+                  <div className="flex items-center md:gap-6 gap-3">
+                    <div
+                      onClick={() => {
+                        navigate(
+                          `/products/${cartItem?.category?.tolowerCase()}/${product._id}`,
+                        );
+                        scrollTo(0, 0);
+                      }}
+                      className="cursor-pointer w-24 h-24 flex items-center justify-center border border-gray-300 rounded overflow-hidden"
+                    >
+                      <img
+                        className="max-w-full h-full object-cover"
+                        src={product.image[0]}
+                        alt={product.name}
+                      />
+                    </div>
 
-                <div>
-                  <p className="hidden md:block font-semibold">
-                    {product.name}
-                  </p>
+                    <div>
+                      <p className="hidden md:block font-semibold">
+                        {product.name}
+                      </p>
 
-                  <div className="font-normal text-gray-500/70">
-                    <p>
-                      Weight: <span>{product?.weight || "N/A"}</span>
-                    </p>
+                      <div className="font-normal text-gray-500/70">
+                        <p>
+                          Weight: <span>{product?.weight || "N/A"}</span>
+                        </p>
 
-                    <div className="flex items-center gap-2 mt-2">
-                      <button
-                        onClick={() => removeProductFromCart(product._id)}
-                        disabled={quantity <= 1}
-                        className="cursor-pointer bg-gray-200 px-2 rounded disabled:opacity-50"
-                      >
-                        -
-                      </button>
+                        <div className="flex items-center gap-2 mt-2">
+                          <button
+                            onClick={() => removeProductFromCart(product._id)}
+                            disabled={quantity <= 1}
+                            className="cursor-pointer bg-gray-200 px-2 rounded disabled:opacity-50"
+                          >
+                            -
+                          </button>
 
-                      <span className="w-5 text-center">{quantity}</span>
+                          <span className="w-5 text-center">{quantity}</span>
 
-                      <button
-                        onClick={() => addProductToCart(product._id)}
-                        className="cursor-pointer bg-gray-200 px-2 rounded"
-                      >
-                        +
-                      </button>
+                          <button
+                            onClick={() => addProductToCart(product._id)}
+                            className="cursor-pointer bg-gray-200 px-2 rounded"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
+
+                  <p className="text-center">
+                    {offerPrice * quantity} {currency}
+                  </p>
+
+                  <button
+                    onClick={() => removeFromCart(product._id)}
+                    className="cursor-pointer mx-auto bg-primary text-white rounded-lg p-2 hover:-translate-y-0.5"
+                  >
+                    Remove from cart
+                  </button>
                 </div>
-              </div>
-
-              <p className="text-center">
-                {offerPrice * quantity} {currency}
-              </p>
-
-              <button
-                onClick={() => removeFromCart(product._id)}
-                className="cursor-pointer mx-auto bg-primary text-white rounded-lg p-2 hover:-translate-y-0.5"
-              >
-                Remove from cart
-              </button>
-            </div>
-          );
-        })}
-
+              );
+            })
+          : ""}
         <button
           onClick={() => {
             navigate("/products");

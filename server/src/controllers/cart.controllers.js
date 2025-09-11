@@ -41,6 +41,11 @@ export const getUserCart = async (req, res) => {
       "cartItems.product",
     );
 
+    if (!user) {
+      return res.json({ success: false, message: "No Cart Found" });
+    }
+
+    console.log(user);
     return res
       .status(200)
       .json({ success: true, user, message: "Cart Fetched" });
