@@ -26,10 +26,15 @@ export async function generateSlots(daysAhead = 15) {
     for (const [, times] of Object.entries(slotGroups)) {
       for (const time of times) {
         try {
+          // Randomly decide if this slot should be reserved
+          const isReserved = Math.random() < 0.3; // 30% chance to be reserved
+          const status = isReserved ? "reserved" : "available";
+          const reservedBy = isReserved ? "68c08927d9f7c8f54cdf37c8" : null;
+
           // Use upsert so duplicates can't slip through
           await DeliverySlot.updateOne(
             { date: day, time }, // filter by unique fields
-            { $setOnInsert: { status: "available", reservedBy: null } },
+            { $setOnInsert: { status, reservedBy } },
             { upsert: true }, // create if not exists
           );
         } catch (err) {

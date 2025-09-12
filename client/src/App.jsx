@@ -19,6 +19,7 @@ import ProductList from "./pages/admin/ProductList";
 import Orders from "./pages/admin/Orders";
 import NotFound from "./pages/NotFound";
 import DeliverySlotTable from "./components/DeliverySlotTable";
+import Loading from "./components/Loading";
 
 const App = () => {
   const isSellerPath = useLocation().pathname.includes("admin");
@@ -44,6 +45,7 @@ const App = () => {
           <Route path="/add-address" element={<AddAddress />} />
           <Route path="/orders" element={<MyOrders />} />
           <Route path="/delivery-slot" element={<DeliverySlotTable />} />
+          <Route path="/loading" element={<Loading />} />
           <Route
             path="/admin"
             element={isAdmin ? <AdminLayout /> : <AdminLogin />}

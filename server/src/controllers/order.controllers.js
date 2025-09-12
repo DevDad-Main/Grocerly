@@ -124,10 +124,7 @@ export const placeOrderWithStripe = async (req, res) => {
       };
     });
 
-    const draftOrder = await DraftOrder.findOneAndDelete(
-      { userId },
-      { session },
-    );
+    const draftOrder = await DraftOrder.findOne({ userId }, { session });
 
     if (draftOrder?.deliverySlot) {
       await DeliverySlot.findByIdAndUpdate(
@@ -196,7 +193,60 @@ export const placeOrderWithStripe = async (req, res) => {
     });
   }
 };
+//#endregion
 
+//#region Strip Webook to Verify Payment Actions and Give Order PDF
+export const stripeWebHook = async (req, res) => {
+  const stripeInstance = new Stripe(process.env.STRIPE_SK);
+
+  const sig = request.headers["stripe-signature"];
+  let event;
+  try {
+    event = stripeInstance.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET,
+    );
+  } catch (error) {
+    return res.status(400).send(`Webhook Error: ${error.message}`);
+  }
+
+  //Handle Event
+  switch (event.type) {
+    case "payment_intent.succeeded": {
+      const data = event.data.object;
+      const orderId = data.metadata.orderId;
+      const userId = data.metadata.userId;
+
+      const session = await stripeInstance.checkout.sessions.list({
+        payment_intent: data.id,
+      });
+
+      await Order.findByIdAndUpdate(orderId, { isPaid: true });
+
+      await DraftOrder.findOneAndDelete({ userId });
+      break;
+    }
+
+    case "payment_intent.payment_failed": {
+      const data = event.data.object;
+      const orderId = data.metadata.orderId;
+      const userId = data.metadata.userId;
+
+      const session = await stripeInstance.checkout.sessions.list({
+        payment_intent: data.id,
+      });
+
+      await Order.findByIdAndDelete(orderId);
+      break;
+    }
+
+    default:
+      console.log(`Unhandled event type ${event.type}`);
+      break;
+  }
+  return res.json({ received: true });
+};
 //#endregion
 
 //#region Get Orders For User -> api/v1/order/orders

@@ -14,6 +14,7 @@ import orderRoutes from "./routes/order.routes.js";
 import deliveryRoutes from "./routes/deliverySlot.routes.js";
 import draftOrderRoutes from "./routes/draftOrder.routes.js";
 import { generateSlots } from "./utils/generateDeliverySlots.utils.js";
+import { stripeWebHook } from "./controllers/order.controllers.js";
 
 //#region CONSTANTS
 const app = express();
@@ -22,6 +23,8 @@ const allowedOrigins = process.env.CORS_ORIGIN.split(","); // split comma-separa
 //#endregion
 
 //#region Middlewares
+app.post("/stripe", express.raw({ type: "application/json" }), stripeWebHook);
+
 app.use(
   cors({
     origin: allowedOrigins,
