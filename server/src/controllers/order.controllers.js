@@ -164,7 +164,7 @@ export const placeOrderWithStripe = async (req, res) => {
       payment_method_types: ["card"],
       mode: "payment",
       line_items,
-      success_url: `${origin}/order-success?next=orders`,
+      success_url: `${origin}/loading?next=orders`,
       cancel_url: `${origin}/cart`,
       customer_email: user.email,
       metadata: {
