@@ -1,5 +1,4 @@
 import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
 import streamifier from "streamifier";
 
 //NOTE: We have to import dotenv manually as cloudinary returns an error

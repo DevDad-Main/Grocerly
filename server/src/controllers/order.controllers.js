@@ -124,7 +124,7 @@ export const placeOrderWithStripe = async (req, res) => {
       };
     });
 
-    const draftOrder = await DraftOrder.findOne({ userId }, { session });
+    const draftOrder = await DraftOrder.findOne({ userId }).session(session);
 
     if (draftOrder?.deliverySlot) {
       await DeliverySlot.findByIdAndUpdate(
@@ -179,8 +179,6 @@ export const placeOrderWithStripe = async (req, res) => {
     return res.status(201).json({
       success: true,
       url: stripeSession.url,
-      sessionId: stripeSession.id,
-      pk_test_key: process.env.STRIPE_PK,
       message: "Order Placed",
     });
   } catch (error) {
