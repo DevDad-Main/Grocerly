@@ -256,9 +256,15 @@ export const getUserOrders = async (req, res) => {
       return res.json({ success: false, message: "Invalid User Id" });
     }
 
+    // const orders = await Order.find({
+    //   userId,
+    //   $or: [{ paymentType: "COD" }, { isPaid: true }],
+    // })
+    //   .populate("items.product address")
+    //   .sort({ createdAt: -1 });
+
     const orders = await Order.find({
       userId,
-      $or: [{ paymentType: "COD" }, { isPaid: true }],
     })
       .populate("items.product address")
       .sort({ createdAt: -1 });
