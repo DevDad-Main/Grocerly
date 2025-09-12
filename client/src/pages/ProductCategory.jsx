@@ -15,7 +15,7 @@ const ProductCategory = () => {
     (product) => product.category.toLowerCase() === category.toLowerCase(),
   );
   return (
-    <div className="mt-16">
+    <div className="mt-32">
       {selectedCategory && (
         <div className="flex flex-col items-end w-max">
           <p className="text-2xl  font-medium">

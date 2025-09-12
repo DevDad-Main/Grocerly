@@ -7,17 +7,29 @@ export const addAddress = async (req, res) => {
   try {
     const userId = req.user?._id;
     const { address } = req.body;
+    const { phone } = address;
+
+    const parsedNum = parseInt(phone);
 
     if (!isValidObjectId(userId)) {
       return res.json({ success: false, message: "Invalid User Id" });
     }
 
     const user = await User.findById(userId);
+
     if (!user) {
       return res.json({ success: false, message: "User not found" });
     }
 
-    await Address.create({ ...address, userId });
+    await Address.create({
+      userId,
+      street: address.street,
+      city: address.city,
+      state: address.state,
+      zipcode: address.zipcode,
+      country: address.country,
+      phone: parsedNum,
+    });
 
     return res.status(201).json({ success: true, message: "Address Added" });
   } catch (error) {
