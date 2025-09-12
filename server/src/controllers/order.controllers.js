@@ -197,7 +197,7 @@ export const placeOrderWithStripe = async (req, res) => {
 export const stripeWebHook = async (req, res) => {
   const stripeInstance = new Stripe(process.env.STRIPE_SK);
 
-  const sig = request.headers["stripe-signature"];
+  const sig = req.headers["stripe-signature"];
   let event;
   try {
     event = stripeInstance.webhooks.constructEvent(
