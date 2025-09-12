@@ -20,7 +20,7 @@ const AllProducts = () => {
   }, [products, searchQuery]);
 
   return (
-    <div className="mt-16 flex flex-col">
+    <div className="mt-32 flex flex-col">
       {/* Title */}
       <div className="flex flex-col items-end w-max">
         <p className="text-2xl font-medium uppercase">All Products</p>

@@ -149,7 +149,7 @@ const DeliverySlotTable = () => {
   const hasConfirmedSlot = confirmedSlot !== null;
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-4xl mx-auto mt-10">
+    <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-4xl mx-auto mt-32">
       <h2 className="text-xl font-semibold mb-7 text-center">
         Choose a Delivery Slot
       </h2>
