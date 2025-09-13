@@ -4,6 +4,15 @@ import Order from "../models/Order.js";
 import DraftOrder from "../models/DraftOrder.js";
 import DeliverySlot from "../models/DeliverySlot.js";
 
+/**
+ * Stripe → triggers webhook
+ * Webhook → enqueue job in Bull (Redis)
+ * Redis → stores job temporarily
+ * Worker → picks up job asynchronously
+ * Worker → updates DB (Order, DeliverySlot, etc.)
+ * Worker → job completes or fails (logged)
+ *
+ */
 paymentQueue.process(async (job) => {
   const { type, orderId, userId, slotId } = job.data;
 
