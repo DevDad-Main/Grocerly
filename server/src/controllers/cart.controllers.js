@@ -45,7 +45,6 @@ export const getUserCart = async (req, res) => {
       return res.json({ success: false, message: "No Cart Found" });
     }
 
-    console.log(user);
     return res
       .status(200)
       .json({ success: true, user, message: "Cart Fetched" });
@@ -138,7 +137,6 @@ export const removeFromCart = async (req, res) => {
   try {
     const userId = req.user?._id;
     const { productId } = req.body;
-    console.log(productId);
 
     if (!isValidObjectId(userId) || !isValidObjectId(productId)) {
       return res.json({

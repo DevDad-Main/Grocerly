@@ -5,7 +5,7 @@ const deliverySlotSchema = new mongoose.Schema({
   time: { type: String, required: true },
   status: {
     type: String,
-    enum: ["available", "reserved"],
+    enum: ["available", "reserved", "booked"],
     default: "available",
   },
   reservedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

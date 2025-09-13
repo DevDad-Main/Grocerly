@@ -239,11 +239,25 @@ const DeliverySlotTable = () => {
                     /* const isConfirmed = confirmedSlot === slot._id; */
                   }
 
+                  {
+                    /* const isMine = */
+                  }
+                  {
+                    /*   isReserved && */
+                  }
+                  {
+                    /*   String(slot.reservedBy?._id || slot.reservedBy) === */
+                  }
+                  {
+                    /*     String(user?._id); */
+                  }
                   const isReserved = slot.status === "reserved";
+                  const isBooked = slot.status === "booked";
                   const isMine =
-                    isReserved &&
+                    slot.status === "reserved" &&
                     String(slot.reservedBy?._id || slot.reservedBy) ===
                       String(user?._id);
+
                   const isSelected = selectedSlot?._id === slot._id;
                   const isConfirmed = confirmedSlot === slot._id || isMine;
                   const past = isPastSlot(slot);
@@ -255,12 +269,15 @@ const DeliverySlotTable = () => {
                       disabled={
                         past ||
                         (confirmedSlot && confirmedSlot !== slot._id) ||
-                        (isReserved && !isMine)
+                        (isReserved && !isMine) || // reserved by someone else
+                        isBooked // always disable booked slots
                       }
                       className={`py-3 px-3 rounded-xl border text-sm font-medium transition shadow-sm
-                      ${
-                        past
-                          ? "bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed" // grey out past slots
+                    ${
+                      past
+                        ? "bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed"
+                        : isBooked
+                          ? "bg-gray-300 text-gray-500 border-gray-400 cursor-not-allowed" // 👈 distinct booked style
                           : isMine
                             ? "bg-red-500 text-white border-red-600 cursor-pointer"
                             : isConfirmed
@@ -270,7 +287,7 @@ const DeliverySlotTable = () => {
                                 : isReserved
                                   ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
                                   : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-primary/10"
-                      }`}
+                    }`}
                     >
                       {slot.time}
                     </button>

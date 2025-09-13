@@ -1,6 +1,8 @@
 import { app } from "./app.js";
 import "dotenv/config";
 import connectDB from "./db/mongooseDB.js";
+import { generateSlots } from "./utils/generateDeliverySlots.utils.js";
+import { client } from "./utils/redis.utils.js";
 
 //#region CONSTANTS
 const PORT = process.env.PORT || 4000;

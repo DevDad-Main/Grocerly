@@ -5,6 +5,7 @@ import { DeliverySlot } from "../model/DeliverySlot.model.js";
 import { Product } from "../model/Product.model.js";
 import { User } from "../model/User.model.js";
 import Stripe from "stripe";
+import Queue from "bull";
 
 const threePercentTax = 0.03;
 
@@ -115,27 +116,45 @@ export const placeOrderWithStripe = async (req, res) => {
           product_data: {
             name: product.name,
           },
-          unit_amount:
-            Math.floor(
-              product.offerPrice + product.offerPrice * threePercentTax,
-            ) * 100,
+          unit_amount: Math.floor(product.offerPrice * 100),
         },
         quantity: item.quantity,
       };
     });
 
+    // add tax line item (3% of cart total)
+    const cartSubtotal = items.reduce((acc, item) => {
+      const product = products.find((p) => p._id.equals(item.product));
+      return acc + product.offerPrice * item.quantity;
+    }, 0);
+
+    const taxAmount = Math.floor(cartSubtotal * threePercentTax * 100);
+
+    if (taxAmount > 0) {
+      line_items.push({
+        price_data: {
+          currency: "pln",
+          product_data: {
+            name: "Tax (3%)",
+          },
+          unit_amount: taxAmount,
+        },
+        quantity: 1,
+      });
+    }
+
     const draftOrder = await DraftOrder.findOne({ userId }).session(session);
 
-    if (draftOrder?.deliverySlot) {
-      await DeliverySlot.findByIdAndUpdate(
-        draftOrder.deliverySlot,
-        {
-          reservedBy: null,
-          status: "available",
-        },
-        { session },
-      );
-    }
+    // if (draftOrder?.deliverySlot) {
+    //   await DeliverySlot.findByIdAndUpdate(
+    //     draftOrder.deliverySlot,
+    //     {
+    //       reservedBy: null,
+    //       status: "available",
+    //     },
+    //     { session },
+    //   );
+    // }
 
     const order = new Order({
       userId,
@@ -167,9 +186,12 @@ export const placeOrderWithStripe = async (req, res) => {
       success_url: `${origin}/loading?next=orders`,
       cancel_url: `${origin}/cart`,
       customer_email: user.email,
-      metadata: {
-        orderId: order._id.toString(),
-        userId: userId.toString(),
+      payment_intent_data: {
+        metadata: {
+          orderId: order._id.toString(),
+          userId: userId.toString(),
+          slotId: draftOrder.deliverySlot?.toString() || "",
+        },
       },
     });
 
@@ -215,14 +237,45 @@ export const stripeWebHook = async (req, res) => {
       const data = event.data.object;
       const orderId = data.metadata.orderId;
       const userId = data.metadata.userId;
+      const slotId = data.metadata.slotId;
 
-      const session = await stripeInstance.checkout.sessions.list({
-        payment_intent: data.id,
-      });
+      try {
+        const session = await stripeInstance.checkout.sessions.list({
+          payment_intent: data.id,
+        });
 
-      await Order.findByIdAndUpdate(orderId, { isPaid: true });
+        await Order.findByIdAndUpdate(
+          orderId,
+          { isPaid: true, status: "completed" },
+          { new: true, runValidators: true },
+        );
 
-      await DraftOrder.findOneAndDelete({ userId });
+        // const order = await Order.findById(orderId);
+        // if (order) {
+        //   order.isPaid = true;
+        //   order.status = "completed";
+        //   await order.save(); // triggers hooks
+        // }
+
+        await DraftOrder.findOneAndDelete({ userId });
+
+        // if (slotId) {
+        //   const slot = await DeliverySlot.findById(slotId);
+        //   if (slot) {
+        //     slot.status = "booked";
+        //     slot.reservedBy = userId;
+        //     await slot.save();
+        //   }
+        // }
+        if (slotId) {
+          await DeliverySlot.findByIdAndUpdate(slotId, {
+            status: "booked",
+            reservedBy: userId,
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
       break;
     }
 
@@ -230,12 +283,21 @@ export const stripeWebHook = async (req, res) => {
       const data = event.data.object;
       const orderId = data.metadata.orderId;
       const userId = data.metadata.userId;
+      const slotId = data.metadata.slotId;
 
       const session = await stripeInstance.checkout.sessions.list({
         payment_intent: data.id,
       });
 
       await Order.findByIdAndDelete(orderId);
+
+      if (slotId) {
+        await DeliverySlot.findByIdAndUpdate(slotId, {
+          status: "available",
+          reservedBy: null,
+        });
+      }
+
       break;
     }
 
@@ -243,7 +305,7 @@ export const stripeWebHook = async (req, res) => {
       console.log(`Unhandled event type ${event.type}`);
       break;
   }
-  return res.json({ received: true });
+  return res.status(200).json({ received: true });
 };
 //#endregion
 
