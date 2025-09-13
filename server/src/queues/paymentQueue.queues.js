@@ -1,4 +1,5 @@
 import Queue from "bull";
+import "dotenv/config";
 
 const REDIS_URL =
   "redis://default:BinxrxhkZtCYPxLSktezuNFNsIMKcHre@hopper.proxy.rlwy.net:14165";

@@ -1,8 +1,8 @@
 import "dotenv/config";
 import { paymentQueue } from "../queues/paymentQueue.queues.js";
-import Order from "../models/Order.js";
-import DraftOrder from "../models/DraftOrder.js";
-import DeliverySlot from "../models/DeliverySlot.js";
+import { Order } from "../model/Order.model.js";
+import { DraftOrder } from "../model/DraftOrder.model.js";
+import { DeliverySlot } from "../model/DeliverySlot.model.js";
 
 /**
  * Stripe → triggers webhook
