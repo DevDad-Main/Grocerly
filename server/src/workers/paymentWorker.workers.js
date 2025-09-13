@@ -1,0 +1,53 @@
+import "dotenv/config";
+import { paymentQueue } from "../queues/paymentQueue.queues.js";
+import Order from "../models/Order.js";
+import DraftOrder from "../models/DraftOrder.js";
+import DeliverySlot from "../models/DeliverySlot.js";
+
+paymentQueue.process(async (job) => {
+  const { type, orderId, userId, slotId } = job.data;
+
+  try {
+    if (type === "succeeded") {
+      await Order.findByIdAndUpdate(
+        orderId,
+        { isPaid: true, status: "completed" },
+        { new: true, runValidators: true },
+      );
+
+      await DraftOrder.findOneAndDelete({ userId });
+
+      if (slotId) {
+        await DeliverySlot.findByIdAndUpdate(slotId, {
+          status: "booked",
+          reservedBy: userId,
+        });
+      }
+    }
+
+    if (type === "failed") {
+      await Order.findByIdAndDelete(orderId);
+
+      if (slotId) {
+        await DeliverySlot.findByIdAndUpdate(slotId, {
+          status: "available",
+          reservedBy: null,
+        });
+      }
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Worker error:", error);
+    throw error; // Bull will mark this job as failed
+  }
+});
+
+paymentQueue.on("completed", (job) =>
+  console.log(`Job completed: ${job.id} (${job.data.type})`),
+);
+paymentQueue.on("failed", (job, err) =>
+  console.log(`Job failed: ${job.id} (${job.data.type})`, err),
+);
+
+console.log("Worker running, waiting for jobs...");

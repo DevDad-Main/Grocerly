@@ -5,7 +5,7 @@ import { DeliverySlot } from "../model/DeliverySlot.model.js";
 import { Product } from "../model/Product.model.js";
 import { User } from "../model/User.model.js";
 import Stripe from "stripe";
-import Queue from "bull";
+import { paymentQueue } from "../queues/paymentQueue.queues.js";
 
 const threePercentTax = 0.03;
 
@@ -218,9 +218,9 @@ export const placeOrderWithStripe = async (req, res) => {
 //#region Strip Webook to Verify Payment Actions and Give Order PDF
 export const stripeWebHook = async (req, res) => {
   const stripeInstance = new Stripe(process.env.STRIPE_SK);
-
   const sig = req.headers["stripe-signature"];
   let event;
+
   try {
     event = stripeInstance.webhooks.constructEvent(
       req.body,
@@ -231,72 +231,70 @@ export const stripeWebHook = async (req, res) => {
     return res.status(400).send(`Webhook Error: ${error.message}`);
   }
 
-  //Handle Event
+  //Handle Event and enqueue jobs for succeeded and failed payments
   switch (event.type) {
     case "payment_intent.succeeded": {
       const data = event.data.object;
+
+      //NOTE: Here we will enqueue a job instead of updating DB directly as this was where we were having the issue
       const orderId = data.metadata.orderId;
-      const userId = data.metadata.userId;
-      const slotId = data.metadata.slotId;
 
-      try {
-        const session = await stripeInstance.checkout.sessions.list({
-          payment_intent: data.id,
-        });
-
-        await Order.findByIdAndUpdate(
-          orderId,
-          { isPaid: true, status: "completed" },
-          { new: true, runValidators: true },
-        );
-
-        // const order = await Order.findById(orderId);
-        // if (order) {
-        //   order.isPaid = true;
-        //   order.status = "completed";
-        //   await order.save(); // triggers hooks
-        // }
-
-        await DraftOrder.findOneAndDelete({ userId });
-
-        // if (slotId) {
-        //   const slot = await DeliverySlot.findById(slotId);
-        //   if (slot) {
-        //     slot.status = "booked";
-        //     slot.reservedBy = userId;
-        //     await slot.save();
-        //   }
-        // }
-        if (slotId) {
-          await DeliverySlot.findByIdAndUpdate(slotId, {
-            status: "booked",
-            reservedBy: userId,
-          });
-        }
-      } catch (error) {
-        console.log(error);
-      }
+      await paymentQueue.add({
+        type: "succeeded",
+        orderId: data.metadata.orderId,
+        userId: data.metadata.userId,
+        slotId: data.metadata.slotId,
+      });
+      // try {
+      //   const session = await stripeInstance.checkout.sessions.list({
+      //     payment_intent: data.id,
+      //   });
+      //
+      //   await Order.findByIdAndUpdate(
+      //     orderId,
+      //     { isPaid: true, status: "completed" },
+      //     { new: true, runValidators: true },
+      //   );
+      //
+      //   await DraftOrder.findOneAndDelete({ userId });
+      //
+      //   if (slotId) {
+      //     await DeliverySlot.findByIdAndUpdate(slotId, {
+      //       status: "booked",
+      //       reservedBy: userId,
+      //     });
+      //   }
+      // } catch (error) {
+      //   console.log(error);
+      // }
       break;
     }
 
     case "payment_intent.payment_failed": {
       const data = event.data.object;
-      const orderId = data.metadata.orderId;
-      const userId = data.metadata.userId;
-      const slotId = data.metadata.slotId;
 
-      const session = await stripeInstance.checkout.sessions.list({
-        payment_intent: data.id,
+      await paymentQueue.add({
+        type: "failed",
+        orderId: data.metadata.orderId,
+        userId: data.metadata.userId,
+        slotId: data.metadata.slotId,
       });
-
-      await Order.findByIdAndDelete(orderId);
-
-      if (slotId) {
-        await DeliverySlot.findByIdAndUpdate(slotId, {
-          status: "available",
-          reservedBy: null,
-        });
-      }
+      // const orderId = data.metadata.orderId;
+      // const userId = data.metadata.userId;
+      // const slotId = data.metadata.slotId;
+      //
+      // const session = await stripeInstance.checkout.sessions.list({
+      //   payment_intent: data.id,
+      // });
+      //
+      // await Order.findByIdAndDelete(orderId);
+      //
+      // if (slotId) {
+      //   await DeliverySlot.findByIdAndUpdate(slotId, {
+      //     status: "available",
+      //     reservedBy: null,
+      //   });
+      // }
 
       break;
     }
