@@ -237,64 +237,32 @@ export const stripeWebHook = async (req, res) => {
       const data = event.data.object;
 
       //NOTE: Here we will enqueue a job instead of updating DB directly as this was where we were having the issue
-      const orderId = data.metadata.orderId;
 
-      await paymentQueue.add({
-        type: "succeeded",
-        orderId: data.metadata.orderId,
-        userId: data.metadata.userId,
-        slotId: data.metadata.slotId,
-      });
-      // try {
-      //   const session = await stripeInstance.checkout.sessions.list({
-      //     payment_intent: data.id,
-      //   });
-      //
-      //   await Order.findByIdAndUpdate(
-      //     orderId,
-      //     { isPaid: true, status: "completed" },
-      //     { new: true, runValidators: true },
-      //   );
-      //
-      //   await DraftOrder.findOneAndDelete({ userId });
-      //
-      //   if (slotId) {
-      //     await DeliverySlot.findByIdAndUpdate(slotId, {
-      //       status: "booked",
-      //       reservedBy: userId,
-      //     });
-      //   }
-      // } catch (error) {
-      //   console.log(error);
-      // }
+      await paymentQueue.add(
+        {
+          type: "succeeded",
+          orderId: data.metadata.orderId,
+          userId: data.metadata.userId,
+          slotId: data.metadata.slotId,
+        },
+        { attempts: 3, backoff: 5000 },
+      );
+
       break;
     }
 
     case "payment_intent.payment_failed": {
       const data = event.data.object;
 
-      await paymentQueue.add({
-        type: "failed",
-        orderId: data.metadata.orderId,
-        userId: data.metadata.userId,
-        slotId: data.metadata.slotId,
-      });
-      // const orderId = data.metadata.orderId;
-      // const userId = data.metadata.userId;
-      // const slotId = data.metadata.slotId;
-      //
-      // const session = await stripeInstance.checkout.sessions.list({
-      //   payment_intent: data.id,
-      // });
-      //
-      // await Order.findByIdAndDelete(orderId);
-      //
-      // if (slotId) {
-      //   await DeliverySlot.findByIdAndUpdate(slotId, {
-      //     status: "available",
-      //     reservedBy: null,
-      //   });
-      // }
+      await paymentQueue.add(
+        {
+          type: "failed",
+          orderId: data.metadata.orderId,
+          userId: data.metadata.userId,
+          slotId: data.metadata.slotId,
+        },
+        { attempts: 3, backoff: 5000 },
+      );
 
       break;
     }

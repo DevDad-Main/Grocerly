@@ -28,7 +28,7 @@ export async function generateSlots(daysAhead = 15) {
         try {
           // Randomly decide if this slot should be reserved
           const isReserved = Math.random() < 0.3; // 30% chance to be reserved
-          const status = isReserved ? "reserved" : "available";
+          const status = isReserved ? "booked" : "available";
           const reservedBy = isReserved ? "68c08927d9f7c8f54cdf37c8" : null;
 
           // Use upsert so duplicates can't slip through
