@@ -1,5 +1,5 @@
-import { app } from "./app.js";
 import "dotenv/config";
+import { app } from "./app.js";
 import connectDB from "./db/mongooseDB.js";
 import { generateSlots } from "./utils/generateDeliverySlots.utils.js";
 import { client } from "./utils/redis.utils.js";
