@@ -4,6 +4,8 @@ import generateUserToken from "../utils/generateToken.utils.js";
 import mongoose, { isValidObjectId } from "mongoose";
 import { DraftOrder } from "../model/DraftOrder.model.js";
 import { DeliverySlot } from "../model/DeliverySlot.model.js";
+import { OAuth2Client } from "google-auth-library";
+import { v7 as uuidv7 } from "uuid";
 
 //#region CONSTANTS
 const SALT_ROUNDS = 12;
@@ -13,7 +15,58 @@ const options = {
   sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
   maxAge: 7 * 24 * 60 * 60 * 1000, // Weeks time
 };
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 //#endregion;
+
+//#region Google OAuth callback handler
+export const googleLogin = async (req, res) => {
+  try {
+    const { credential } = req.body;
+
+    // Verify credential
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name } = payload;
+    const password = uuidv7();
+
+    const encryptedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+    // Find or create user
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        password: encryptedPassword, // generate a random one, since Google users won’t use it
+      });
+    }
+
+    // Generate your own JWT
+    const { token } = await generateUserToken(user._id);
+
+    return res
+      .status(201)
+      .cookie("token", token, options)
+      .json({
+        success: true,
+        token,
+        user: { name: user.name, email: user.email },
+        message: "Google login successful",
+      });
+  } catch (err) {
+    console.error("Google login error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Google login failed",
+    });
+  }
+};
+//#endregion
 
 //#region Register User -> api/v1/user/register
 export const registerUser = async (req, res) => {

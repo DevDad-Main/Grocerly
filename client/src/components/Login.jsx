@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
+import { GoogleLogin } from "@react-oauth/google";
 
 function Login() {
   const [state, setState] = useState("login");
@@ -28,6 +29,31 @@ function Login() {
     } catch (error) {
       toast.error(error.message);
     }
+  };
+
+  const responseMessage = async (response) => {
+    try {
+      // response.credential is a JWT from Google
+      const { data } = await axios.post("/api/v1/user/google-login", {
+        credential: response.credential,
+      });
+
+      if (data.success) {
+        setUser(data.user);
+        localStorage.setItem("token", data.token);
+        toast.success("Logged in with Google");
+        setShowUserLogin(false);
+        navigate("/");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Google login failed");
+    }
+  };
+  const errorMessage = (error) => {
+    console.log(error);
   };
 
   return (
@@ -111,6 +137,7 @@ function Login() {
         <button className="bg-primary hover:bg-primary-dull transition-all text-white w-full py-2 rounded-md cursor-pointer">
           {state === "register" ? "Create Account" : "Login"}
         </button>
+        <GoogleLogin onSuccess={responseMessage} onError={errorMessage} />
       </form>
     </div>
   );

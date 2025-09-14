@@ -12,7 +12,6 @@ import addressRoutes from "./routes/address.routes.js";
 import orderRoutes from "./routes/order.routes.js";
 import deliveryRoutes from "./routes/deliverySlot.routes.js";
 import draftOrderRoutes from "./routes/draftOrder.routes.js";
-import { generateSlots } from "./utils/generateDeliverySlots.utils.js";
 // import { stripeWebHook } from "./controllers/order.controllers.js";
 import stripeRoutes from "./routes/stripe.routes.js";
 
