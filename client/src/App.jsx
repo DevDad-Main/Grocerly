@@ -21,11 +21,12 @@ import NotFound from "./pages/NotFound";
 import DeliverySlotTable from "./components/DeliverySlotTable";
 import Loading from "./components/Loading";
 import OrderDetails from "./pages/OrderDetails";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   const isSellerPath = useLocation().pathname.includes("admin");
 
-  const { showUserLogin, isAdmin } = useAppContext();
+  const { showUserLogin, isAdmin, user } = useAppContext();
 
   useEffect(() => {}, [isAdmin]);
   return (
@@ -42,7 +43,14 @@ const App = () => {
           <Route path="/products" element={<AllProducts />} />
           <Route path="/products/:category" element={<ProductCategory />} />
           <Route path="/products/:category/:id" element={<ProductDetails />} />
-          <Route path="/cart" element={<Cart />} />
+          <Route
+            path="/cart"
+            element={
+              <ProtectedRoute user={user}>
+                <Cart />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/add-address" element={<AddAddress />} />
           <Route path="/orders" element={<MyOrders />} />
           <Route path="/order/:orderId" element={<OrderDetails />} />

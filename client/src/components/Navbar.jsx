@@ -94,19 +94,21 @@ const Navbar = () => {
             <img src={assets.search_icon} alt="search" className="w-4 h-4" />
           </div>
 
-          <div
-            onClick={handleNavigateToCart}
-            className="relative cursor-pointer hover:-translate-y-0.5 transition-all duration-200"
-          >
-            <img
-              src={assets.cart_icon}
-              alt="cart icon"
-              className="w-6 opacity-80 "
-            />
-            <button className="absolute -top-2 -right-3 text-xs text-white bg-primary w-[18px] h-[18px] rounded-full ">
-              {getCartCount()}
-            </button>
-          </div>
+          {user && (
+            <div
+              onClick={handleNavigateToCart}
+              className="relative cursor-pointer hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <img
+                src={assets.cart_icon}
+                alt="cart icon"
+                className="w-6 opacity-80 "
+              />
+              <button className="absolute -top-2 -right-3 text-xs text-white bg-primary w-[18px] h-[18px] rounded-full ">
+                {getCartCount()}
+              </button>
+            </div>
+          )}
 
           {!user ? (
             <button
