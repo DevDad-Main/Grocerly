@@ -6,7 +6,24 @@ import { ArrowLeft } from "lucide-react";
 const AllProducts = () => {
   const { products, searchQuery } = useAppContext();
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 5;
 
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts
+    .filter((product) => product.inStock)
+    .slice(indexOfFirstProduct, indexOfLastProduct);
+
+  const totalPages = Math.ceil(
+    filteredProducts.filter((product) => product.inStock).length /
+      productsPerPage,
+  );
+
+  const goToPage = (pageNumber) => {
+    if (pageNumber < 1 || pageNumber > totalPages) return;
+    setCurrentPage(pageNumber);
+  };
   useEffect(() => {
     if (searchQuery.length > 0) {
       setFilteredProducts(
@@ -28,81 +45,46 @@ const AllProducts = () => {
       </div>
 
       {/* Map All Products to display to user */}
+
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4 lg:grid-cols-5 mt-6">
-        {filteredProducts
-          .filter((product) => product.inStock)
-          .map((product, index) => (
-            <ProductCard key={index} product={product} />
-          ))}
+        {currentProducts.map((product, index) => (
+          <ProductCard key={index} product={product} />
+        ))}
       </div>
 
       {/* Pagination */}
       <div className="flex flex-col items-center mt-20">
         <div className="flex items-center gap-2 text-gray-500">
           <button
-            type="button"
-            aria-label="previous"
-            class="mr-4 flex items-center gap-1 cursor-pointer hover:-translate-x-0.5"
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="mr-4 flex items-center gap-1 cursor-pointer hover:-translate-x-0.5 disabled:opacity-50"
           >
-            <svg
-              class="mt-px"
-              width="23"
-              height="23"
-              viewBox="0 0 23 23"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M5.75 12.5h11.5m-11.5 0 4.792-4.791M5.75 12.5l4.792 4.792"
-                stroke="#6B7280"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-
             <span>previous</span>
           </button>
 
-          <div class="flex gap-2 text-sm md:text-base">
-            <button
-              type="button"
-              class="flex items-center justify-center w-9 md:w-12 h-9 md:h-12 aspect-square rounded-md hover:bg-gray-300/10 transition-all"
-            >
-              1
-            </button>
-
-            <button
-              type="button"
-              class="flex items-center justify-center w-9 md:w-12 h-9 md:h-12 aspect-square bg-primary text-white rounded-md transition-all"
-            >
-              2
-            </button>
+          <div className="flex gap-2 text-sm md:text-base">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => goToPage(i + 1)}
+                className={`flex items-center justify-center w-9 md:w-12 h-9 md:h-12 aspect-square rounded-md transition-all ${
+                  currentPage === i + 1
+                    ? "bg-primary text-white"
+                    : "hover:bg-gray-300/10"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
           </div>
 
           <button
-            type="button"
-            aria-label="next"
-            class="ml-4 flex items-center gap-1 cursor-pointer hover:translate-x-0.5"
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="ml-4 flex items-center gap-1 cursor-pointer hover:translate-x-0.5 disabled:opacity-50"
           >
             <span>next</span>
-
-            <svg
-              class="mt-px"
-              width="23"
-              height="23"
-              viewBox="0 0 23 23"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M17.25 11.5H5.75m11.5 0-4.792-4.79m4.792 4.79-4.792 4.792"
-                stroke="#6B7280"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
           </button>
         </div>
       </div>

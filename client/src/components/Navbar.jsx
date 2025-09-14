@@ -184,6 +184,23 @@ const Navbar = () => {
           <div
             className={`${open ? "flex" : "hidden"} absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden`}
           >
+            {/* ✅ Mobile Search Bar */}
+            <div className="flex items-center text-sm gap-2 border border-gray-300 px-3 rounded-lg w-full mb-4">
+              <input
+                onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchQuery}
+                className="py-1.5 w-full bg-transparent outline-none placeholder-gray-500"
+                type="text"
+                placeholder="Search..."
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    navigate("/products"); // redirect to products page
+                    setOpen(false); // close the mobile menu
+                  }
+                }}
+              />{" "}
+              <img src={assets.search_icon} alt="search" className="w-4 h-4" />
+            </div>
             <NavLink to="/" onClick={() => setOpen(false)}>
               Home
             </NavLink>
@@ -208,14 +225,14 @@ const Navbar = () => {
                   setOpen(false);
                   setShowUserLogin(true);
                 }}
-                className="cursor-pointer px-6 py-2 mt-2 bg-primary hover:bg-primary-dull transition text-white rounded-full text-sm"
+                className="cursor-pointer px-6 py-2 mt-2 bg-primary hover:bg-primary-dull transition text-white rounded-lg text-sm"
               >
                 Login
               </button>
             ) : (
               <button
                 onClick={logout}
-                className="cursor-pointer px-6 py-2 mt-2 bg-primary hover:bg-primary-dull transition text-white rounded-full text-sm"
+                className="cursor-pointer px-6 py-2 mt-2 bg-primary hover:bg-primary-dull transition text-white rounded-lg text-sm"
               >
                 Logout
               </button>

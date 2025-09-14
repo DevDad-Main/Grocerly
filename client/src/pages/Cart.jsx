@@ -19,7 +19,6 @@ const Cart = () => {
     setDraftOrder,
     user,
     setCartItems,
-    cartAmount,
   } = useAppContext();
 
   const [showAddress, setShowAddress] = useState(false);
@@ -337,7 +336,7 @@ const Cart = () => {
         <button
           onClick={placeOrder}
           disabled={hasMinimumSpend()}
-          className={`w-full py-3 mt-6 cursor-pointer bg-primary text-white font-medium hover:bg-primary-dull hover:-translate-y-0.5 transition rounded-lg ${hasMinimumSpend() ? "opacity-75 cursor-not-allowed text-red-500" : "cursor-pointer"}`}
+          className={`w-full py-3 mt-6 cursor-pointer bg-primary text-white font-medium hover:bg-primary-dull hover:-translate-y-0.5 transition rounded-lg ${hasMinimumSpend() ? "opacity-50 cursor-not-allowed text-red-500" : "cursor-pointer"}`}
         >
           {hasMinimumSpend()
             ? `Minimum Spend Of 75 ${currency}`
