@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { paymentQueue } from "../queues/paymentQueue.queues.js";
 import { Order } from "../model/Order.model.js";
 import { DraftOrder } from "../model/DraftOrder.model.js";
@@ -16,6 +15,7 @@ import { DeliverySlot } from "../model/DeliverySlot.model.js";
 paymentQueue.process(async (job) => {
   const { type, orderId, userId, slotId } = job.data;
 
+  console.log("Processing Job:", job.id, job.data);
   try {
     if (type === "succeeded") {
       await Order.findByIdAndUpdate(
@@ -32,6 +32,7 @@ paymentQueue.process(async (job) => {
           reservedBy: userId,
         });
       }
+      console.log("Job completed");
     }
 
     if (type === "failed") {
@@ -43,6 +44,7 @@ paymentQueue.process(async (job) => {
           reservedBy: null,
         });
       }
+      console.log("Job Failed");
     }
 
     return { success: true };

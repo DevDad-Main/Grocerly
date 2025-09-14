@@ -183,7 +183,7 @@ export const placeOrderWithStripe = async (req, res) => {
       payment_method_types: ["card"],
       mode: "payment",
       line_items,
-      success_url: `${origin}/loading?next=orders`,
+      success_url: `${origin}/loading?next=orders&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/cart`,
       customer_email: user.email,
       payment_intent_data: {
@@ -215,66 +215,66 @@ export const placeOrderWithStripe = async (req, res) => {
 };
 //#endregion
 
-//#region Strip Webook to Verify Payment Actions and Give Order PDF
-export const stripeWebHook = async (req, res) => {
-  const stripeInstance = new Stripe(process.env.STRIPE_SK);
-  const sig = req.headers["stripe-signature"];
-  let event;
-
-  try {
-    event = stripeInstance.webhooks.constructEvent(
-      req.body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET,
-    );
-  } catch (error) {
-    return res.status(400).send(`Webhook Error: ${error.message}`);
-  }
-
-  //Handle Event and enqueue jobs for succeeded and failed payments
-  switch (event.type) {
-    case "payment_intent.succeeded": {
-      const data = event.data.object;
-
-      //NOTE: Here we will enqueue a job instead of updating DB directly as this was where we were having the issue
-
-      await paymentQueue.add(
-        {
-          type: "succeeded",
-          orderId: data.metadata.orderId,
-          userId: data.metadata.userId,
-          slotId: data.metadata.slotId,
-        },
-        { attempts: 3, backoff: 5000 },
-      );
-
-      break;
-    }
-
-    case "payment_intent.payment_failed": {
-      const data = event.data.object;
-
-      await paymentQueue.add(
-        {
-          type: "failed",
-          orderId: data.metadata.orderId,
-          userId: data.metadata.userId,
-          slotId: data.metadata.slotId,
-        },
-        { attempts: 3, backoff: 5000 },
-      );
-
-      break;
-    }
-
-    default:
-      console.log(`Unhandled event type ${event.type}`);
-      break;
-  }
-  return res.status(200).json({ received: true });
-};
-//#endregion
-
+////#region Strip Webook to Verify Payment Actions and Give Order PDF
+//export const stripeWebHook = async (req, res) => {
+//  const stripeInstance = new Stripe(process.env.STRIPE_SK);
+//  const sig = req.headers["stripe-signature"];
+//  let event;
+//
+//  try {
+//    event = stripeInstance.webhooks.constructEvent(
+//      req.body,
+//      sig,
+//      process.env.STRIPE_WEBHOOK_SECRET,
+//    );
+//  } catch (error) {
+//    return res.status(400).send(`Webhook Error: ${error.message}`);
+//  }
+//
+//  //Handle Event and enqueue jobs for succeeded and failed payments
+//  switch (event.type) {
+//    case "payment_intent.succeeded": {
+//      const data = event.data.object;
+//
+//      //NOTE: Here we will enqueue a job instead of updating DB directly as this was where we were having the issue
+//
+//      await paymentQueue.add(
+//        {
+//          type: "succeeded",
+//          orderId: data.metadata.orderId,
+//          userId: data.metadata.userId,
+//          slotId: data.metadata.slotId,
+//        },
+//        { attempts: 3, backoff: 5000 },
+//      );
+//
+//      break;
+//    }
+//
+//    case "payment_intent.payment_failed": {
+//      const data = event.data.object;
+//
+//      await paymentQueue.add(
+//        {
+//          type: "failed",
+//          orderId: data.metadata.orderId,
+//          userId: data.metadata.userId,
+//          slotId: data.metadata.slotId,
+//        },
+//        { attempts: 3, backoff: 5000 },
+//      );
+//
+//      break;
+//    }
+//
+//    default:
+//      console.log(`Unhandled event type ${event.type}`);
+//      break;
+//  }
+//  return res.status(200).json({ received: true });
+//};
+////#endregion
+//
 //#region Get Orders For User -> api/v1/order/orders
 export const getUserOrders = async (req, res) => {
   try {
