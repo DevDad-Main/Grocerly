@@ -41,8 +41,9 @@ export const getUserCart = async (req, res) => {
       "cartItems.product",
     );
 
+    //Removing message to not display on the frontend -> otherwise here cart wont be found
     if (!user) {
-      return res.json({ success: false, message: "No Cart Found" });
+      return res.json({ success: false });
     }
 
     return res
