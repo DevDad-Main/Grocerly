@@ -22,7 +22,7 @@ import DeliverySlotTable from "./components/DeliverySlotTable";
 import Loading from "./components/Loading";
 import OrderDetails from "./pages/OrderDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import UpdateProduct from "./pages/admin/UpdateProduct";
 const App = () => {
   const isSellerPath = useLocation().pathname.includes("admin");
 
@@ -65,7 +65,10 @@ const App = () => {
               path="/admin/product-list"
               element={isAdmin ? <ProductList /> : null}
             />
-
+            <Route
+              path="/admin/product/:id"
+              element={isAdmin ? <UpdateProduct /> : null}
+            />
             <Route path="/admin/orders" element={isAdmin ? <Orders /> : null} />
           </Route>
 

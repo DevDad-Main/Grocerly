@@ -72,6 +72,24 @@ export const AppContextProvider = ({ children }) => {
   };
   //#endregion
 
+  //#region Admin Delete Product
+  const deleteProduct = async (productId) => {
+    try {
+      const id = productId;
+
+      const { data } = await axios.patch("/api/v1/admin/delete-product", {
+        id,
+      });
+
+      if (data.success) {
+        console.log("Deleted: ", productId);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  //#endregion
+
   //#region Add product to cart
   // const addToCart = (itemId) => {
   //   let cartData = structuredClone(cartItems);
@@ -85,6 +103,7 @@ export const AppContextProvider = ({ children }) => {
   //   setCartItems(cartData);
   //   toast.success("Product added to cart");
   // };
+  //#endregion
 
   //#region Add Product To Cart
   const addProductToCart = async (productId) => {
@@ -264,6 +283,7 @@ export const AppContextProvider = ({ children }) => {
     setSelectedSlot,
     setCartItems,
     clearCart,
+    deleteProduct,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

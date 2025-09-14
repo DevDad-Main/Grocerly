@@ -3,17 +3,29 @@ import isAdminAuthenticated from "../middleware/adminAuthentication.middleware.j
 import {
   adminLogin,
   adminLogout,
+  getProductById,
   getAdminAuthentication,
+  deleteProduct,
+  updateProduct,
 } from "../controllers/admin.controllers.js";
+import { upload } from "../utils/multer.utils.js";
 
 const router = Router();
 
-router.post("/login", adminLogin);
 router.get("/logout", isAdminAuthenticated, adminLogout);
 router.get(
   "/admin-authenticated",
   isAdminAuthenticated,
   getAdminAuthentication,
 );
+router.get("/product/:id", isAdminAuthenticated, getProductById);
+router.post("/login", adminLogin);
+router.put(
+  "/product-update/:id",
+  upload.array("images"),
+  isAdminAuthenticated,
+  updateProduct,
+);
+router.patch("/delete-product", isAdminAuthenticated, deleteProduct);
 
 export default router;

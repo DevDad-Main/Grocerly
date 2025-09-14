@@ -1,9 +1,18 @@
 import React, { useEffect } from "react";
 import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
+import { PenBox, TrashIcon } from "lucide-react";
 
 const ProductList = () => {
-  const { products, currency, axios, fetchProducts } = useAppContext();
+  const {
+    products,
+    currency,
+    axios,
+    fetchProducts,
+    deleteProduct,
+    updateProduct,
+    navigate,
+  } = useAppContext();
 
   const toggleStock = async (id, inStock) => {
     try {
@@ -82,9 +91,25 @@ const ProductList = () => {
                         // defaultChecked={product.inStock}
                       />
 
-                      <div className="w-12 h-7 bg-slate-300 rounded-full peer peer-checked:bg-blue-600 transition-colors duration-200"></div>
+                      <div className="w-12 h-7 bg-slate-300 rounded-full peer peer-checked:bg-primary transition-colors duration-200"></div>
 
                       <span className="dot absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-5"></span>
+
+                      <button
+                        onClick={() =>
+                          navigate(`/admin/product/${product._id}`)
+                        }
+                        className="text-primary-dull cursor-pointer"
+                      >
+                        <PenBox />
+                      </button>
+
+                      <button
+                        onClick={() => deleteProduct(product._id)}
+                        className="text-red-500 cursor-pointer"
+                      >
+                        <TrashIcon />
+                      </button>
                     </label>
                   </td>
                 </tr>

@@ -1,4 +1,7 @@
 import jwt from "jsonwebtoken";
+import { uploadBufferToCloudinary } from "../utils/cloudinary.utils.js";
+import { Product } from "../model/Product.model.js";
+import { isValidObjectId } from "mongoose";
 
 //#region CONSTANTS
 const options = {
@@ -56,6 +59,120 @@ export const adminLogout = async (req, res) => {
     });
   }
 };
+//#endregion
+
+//#region Admin Delete Product
+export const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    if (!isValidObjectId(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Product Id" });
+    }
+
+    const product = await Product.findByIdAndDelete(id);
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product Not Found" });
+    }
+    console.log(product);
+    return res.status(204).json({ success: true, message: "Product Deleted" });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
+//#endregion
+
+//#region Admin Update Product
+export const updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Parse productData and existingImages from req.body
+    const productData = JSON.parse(req.body.productData);
+    const existingImages = JSON.parse(req.body.existingImages || "[]");
+
+    if (!isValidObjectId(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Product Id" });
+    }
+
+    const product = await Product.findById(id);
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
+
+    // Handle new uploaded images
+    const images = req.files || [];
+    const newImageUrls = await Promise.all(
+      images.map(async (file) => {
+        const result = await uploadBufferToCloudinary(
+          file.buffer,
+          product.folderId,
+        );
+        return result.secure_url;
+      }),
+    );
+
+    // Merge existing images that were not replaced with new uploaded images
+    product.image = [...existingImages, ...newImageUrls];
+
+    // Update other fields
+    product.name = productData.name ?? product.name;
+    product.description = productData.description ?? product.description;
+    product.category = productData.category ?? product.category;
+    product.price = productData.price ?? product.price;
+    product.offerPrice = productData.offerPrice ?? product.offerPrice;
+
+    await product.save();
+    return res.status(200).json({ success: true, message: "Product Updated" });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
+//#endregion
+
+//#region Get Product By Id
+export const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Product Id" });
+    }
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product Not Found" });
+    }
+
+    return res
+      .status(200)
+      .json({ success: true, product, message: "Product Fetched" });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
+
 //#endregion
 
 //#region Is Admin Authenticated -> api/v1/admin/admin-authenticated
