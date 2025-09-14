@@ -5,7 +5,6 @@ import { DeliverySlot } from "../model/DeliverySlot.model.js";
 import { Product } from "../model/Product.model.js";
 import { User } from "../model/User.model.js";
 import Stripe from "stripe";
-import { paymentQueue } from "../queues/paymentQueue.queues.js";
 
 const threePercentTax = 0.03;
 
@@ -275,6 +274,7 @@ export const placeOrderWithStripe = async (req, res) => {
 //};
 ////#endregion
 //
+
 //#region Get Orders For User -> api/v1/order/orders
 export const getUserOrders = async (req, res) => {
   try {
@@ -294,7 +294,7 @@ export const getUserOrders = async (req, res) => {
     const orders = await Order.find({
       userId,
     })
-      .populate("items.product address")
+      .populate("items.product address deliverySlot")
       .sort({ createdAt: -1 });
 
     return res
@@ -308,6 +308,31 @@ export const getUserOrders = async (req, res) => {
   }
 };
 
+//#endregion
+
+//#region Get User Order By Id -> api/v1/order/:orderId
+export const getUserOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    if (!isValidObjectId(orderId)) {
+      return res.json({ success: false, message: "Invalid User Id" });
+    }
+
+    const order = await Order.findById(orderId).populate(
+      "items.product address deliverySlot",
+    );
+
+    return res
+      .status(200)
+      .json({ success: true, order, message: "Orders Fetched" });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
 //#endregion
 
 //#region Get All Orders For Admin -> api/v1/order/admin
