@@ -137,7 +137,9 @@ function Login() {
         <button className="bg-primary hover:bg-primary-dull transition-all text-white w-full py-2 rounded-md cursor-pointer">
           {state === "register" ? "Create Account" : "Login"}
         </button>
-        <GoogleLogin onSuccess={responseMessage} onError={errorMessage} />
+        <div className="w-full">
+          <GoogleLogin onSuccess={responseMessage} onError={errorMessage} />
+        </div>
       </form>
     </div>
   );

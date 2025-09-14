@@ -3,7 +3,7 @@ import { useAppContext } from "../context/AppContext";
 import { useLocation } from "react-router-dom";
 
 const Loading = () => {
-  const { navigate, axios } = useAppContext();
+  const { navigate, axios, clearCart } = useAppContext();
   const { search } = useLocation();
   const query = new URLSearchParams(search);
 
@@ -24,6 +24,7 @@ const Loading = () => {
         if (data.success) {
           setStatus("Payment successful! Redirecting...");
           setTimeout(() => navigate(`/${nextUrl || ""}`), 3000);
+          clearCart();
         } else {
           setStatus("Payment failed. Redirecting...");
           setTimeout(() => navigate("/cart"), 3000);

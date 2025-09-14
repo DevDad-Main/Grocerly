@@ -21,6 +21,11 @@ export const AppContextProvider = ({ children }) => {
   const [draftOrder, setDraftOrder] = useState(null); // holds current cart + slot info
   const [selectedSlot, setSelectedSlot] = useState(null); // confirmed slot
 
+  //Helper Function to clear the cart
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
   //#region Fetch Admin
   const fetchAdmin = async () => {
     try {
@@ -258,6 +263,7 @@ export const AppContextProvider = ({ children }) => {
     selectedSlot,
     setSelectedSlot,
     setCartItems,
+    clearCart,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

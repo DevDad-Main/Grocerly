@@ -35,7 +35,6 @@ export const googleLogin = async (req, res) => {
 
     const encryptedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-    // Find or create user
     let user = await User.findOne({ email });
 
     if (!user) {
@@ -43,10 +42,10 @@ export const googleLogin = async (req, res) => {
         name,
         email,
         password: encryptedPassword, // generate a random one, since Google users won’t use it
+        authProvider: "google", // Setting this so in the frontend we can specify which auth provider the user is using and logout correctly
       });
     }
 
-    // Generate your own JWT
     const { token } = await generateUserToken(user._id);
 
     return res
@@ -55,7 +54,11 @@ export const googleLogin = async (req, res) => {
       .json({
         success: true,
         token,
-        user: { name: user.name, email: user.email },
+        user: {
+          name: user.name,
+          email: user.email,
+          authProvider: user.authProvider,
+        },
         message: "Google login successful",
       });
   } catch (err) {

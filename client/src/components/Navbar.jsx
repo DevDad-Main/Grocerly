@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
+import { googleLogout } from "@react-oauth/google";
 
 const Navbar = () => {
   const [open, setOpen] = React.useState(false);
@@ -13,6 +14,7 @@ const Navbar = () => {
     navigate,
     setSearchQuery,
     searchQuery,
+    setCartItems,
     getCartCount,
     axios,
     draftOrder,
@@ -24,8 +26,14 @@ const Navbar = () => {
       const { data } = await axios.get("/api/v1/user/logout");
 
       if (data.success) {
+        if (user?.authProvider === "google") {
+          // clears the Google OAuth session and above becuase if we have a success we clear the cookies aswell
+          googleLogout();
+        }
+
         setUser(null);
         setDraftOrder(null);
+        setCartItems([]);
         navigate("/");
         toast.success(data.message);
       } else {
