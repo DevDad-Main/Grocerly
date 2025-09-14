@@ -48,7 +48,7 @@ export const getUserAddresses = async (req, res) => {
     if (!isValidObjectId(userId)) {
       return res.json({ success: false, message: "Invalid User Id" });
     }
-    const addresses = await Address.find({ userId });
+    const addresses = await Address.find({ userId }).sort({ createdAt: -1 });
 
     if (!addresses.length) {
       return res.json({ success: false, message: "No Addresses Found" });

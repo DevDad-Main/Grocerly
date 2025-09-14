@@ -19,6 +19,7 @@ const Cart = () => {
     setDraftOrder,
     user,
     setCartItems,
+    cartAmount,
   } = useAppContext();
 
   const [showAddress, setShowAddress] = useState(false);
@@ -110,6 +111,8 @@ const Cart = () => {
       toast.error(error.message);
     }
   };
+
+  const hasMinimumSpend = () => getCartAmount() < 75;
 
   useEffect(() => {
     if (products.length > 0 && cartItems) {
@@ -296,9 +299,8 @@ const Cart = () => {
             onChange={(e) => setPaymentOption(e.target.value)}
             className="w-full border border-gray-300 bg-white px-3 py-2 mt-2 outline-none"
           >
-            <option value="COD">Cash On Delivery</option>
-
             <option value="Online">Online Payment</option>
+            <option value="COD">Cash On Delivery</option>
           </select>
         </div>
 
@@ -334,9 +336,14 @@ const Cart = () => {
 
         <button
           onClick={placeOrder}
-          className="w-full py-3 mt-6 cursor-pointer bg-primary text-white font-medium hover:bg-primary-dull hover:-translate-y-0.5 transition rounded-lg"
+          disabled={hasMinimumSpend()}
+          className={`w-full py-3 mt-6 cursor-pointer bg-primary text-white font-medium hover:bg-primary-dull hover:-translate-y-0.5 transition rounded-lg ${hasMinimumSpend() ? "opacity-75 cursor-not-allowed text-red-500" : "cursor-pointer"}`}
         >
-          {paymentOption === "COD" ? "Place Order" : "Proceed to checkout"}
+          {hasMinimumSpend()
+            ? `Minimum Spend Of 75 ${currency}`
+            : paymentOption === "COD"
+              ? "Place Order"
+              : "Proceed to checkout"}
         </button>
       </div>
     </div>

@@ -150,7 +150,7 @@ export const AppContextProvider = ({ children }) => {
       const { data } = await axios.get("/api/v1/cart/get-cart");
       if (data.success) {
         setCartItems(data.user.cartItems);
-        console.log(draftOrder);
+        // console.log(draftOrder);
       } else {
         toast.error(data.message);
       }
