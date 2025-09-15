@@ -49,7 +49,7 @@ const AddAddress = () => {
 
       if (data.success) {
         toast.success(data.message);
-        navigate("/cart");
+        navigate("/cart", { state: { newAddress: data.address } });
       } else {
         toast.error(data.message);
       }

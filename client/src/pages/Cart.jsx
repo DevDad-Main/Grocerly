@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { assets, dummyAddress } from "../assets/assets";
 import toast from "react-hot-toast";
+import { useLocation } from "react-router-dom";
 
 const Cart = () => {
   const {
@@ -21,6 +22,7 @@ const Cart = () => {
     setCartItems,
   } = useAppContext();
 
+  const location = useLocation();
   const [showAddress, setShowAddress] = useState(false);
   const [cartArray, setCartArray] = useState([]);
   const [addresses, setAddresses] = useState([]);
@@ -42,6 +44,9 @@ const Cart = () => {
       if (data.success) {
         toast.success(data.message);
         setAddresses(data.addresses);
+        console.log(data.addresses);
+
+        // Automatically select the newest address (first one returned by backend)
         if (data.addresses.length > 0) {
           setSelectedAddress(data.addresses[0]);
         }
@@ -120,11 +125,51 @@ const Cart = () => {
   }, [products, cartItems]);
 
   useEffect(() => {
-    if (user) {
-      getUserAddresses();
+    if (location.state?.newAddress) {
+      setSelectedAddress(location.state.newAddress);
+
+      // Optionally also add it to the addresses list
+      setAddresses((prev) => [location.state.newAddress, ...prev]);
+    } else {
+      if (user) getUserAddresses();
     }
-    console.log(cartArray);
-  }, [user]);
+  }, [location.state, user]);
+
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      if (user) {
+        try {
+          const { data } = await axios.get("/api/v1/address/get-addresses");
+          if (data.success) {
+            let addressesFromBackend = [...data.addresses];
+
+            if (location.state?.newAddress) {
+              const newAddress = location.state.newAddress;
+
+              // Filter out if already in the list
+              addressesFromBackend = addressesFromBackend.filter(
+                (addr) => addr._id !== newAddress._id,
+              );
+
+              // Put new address at the front
+              addressesFromBackend = [newAddress, ...addressesFromBackend];
+
+              setSelectedAddress(newAddress);
+            } else if (addressesFromBackend.length > 0) {
+              // Always select the first one
+              setSelectedAddress(addressesFromBackend[0]);
+            }
+
+            setAddresses(addressesFromBackend);
+          }
+        } catch (err) {
+          toast.error(err.message);
+        }
+      }
+    };
+
+    fetchAddresses();
+  }, [user, location.state?.newAddress]);
 
   return products.length > 0 && cartItems ? (
     <div className="flex flex-col md:flex-row mt-32">
@@ -241,23 +286,26 @@ const Cart = () => {
                 ? `${selectedAddress.street}, ${selectedAddress.city}, ${selectedAddress.state}, ${selectedAddress.country}`
                 : "No Address Found"}
             </p>
-
             <button
               onClick={() => setShowAddress(!showAddress)}
               className="text-primary hover:underline cursor-pointer"
             >
               Change
             </button>
-
             {showAddress && (
-              <div className="absolute top-12 py-1 bg-white border border-gray-300 text-sm w-full">
-                {addresses.map((address, index) => (
+              <div className="absolute top-10 left-0 w-full bg-white border border-gray-300 text-sm z-10 shadow-md">
+                {addresses.map((address) => (
                   <p
+                    key={address._id}
                     onClick={() => {
                       setSelectedAddress(address);
                       setShowAddress(false);
                     }}
-                    className="text-gray-500 p-2 hover:bg-gray-100"
+                    className={`p-2 cursor-pointer hover:bg-gray-100 ${
+                      selectedAddress?._id === address._id
+                        ? "bg-green-100 font-medium"
+                        : ""
+                    }`}
                   >
                     {address.street}, {address.city}, {address.state},{" "}
                     {address.country}
@@ -266,12 +314,12 @@ const Cart = () => {
 
                 <p
                   onClick={() => navigate("/add-address")}
-                  className="text-primary text-center cursor-pointer p-2 hover:bg-primary-dull/10"
+                  className="text-primary text-center cursor-pointer p-2 hover:bg-gray-100 font-medium"
                 >
-                  Add address
+                  + Add New Address
                 </p>
               </div>
-            )}
+            )}{" "}
           </div>
 
           <p className="text-sm font-medium uppercase mt-6">Delivery Slot</p>
