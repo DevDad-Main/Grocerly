@@ -194,7 +194,7 @@ const Navbar = () => {
             <div className="flex items-center text-sm gap-2 border border-gray-300 px-3 rounded-lg w-full mb-4">
               <input
                 onChange={(e) => setSearchQuery(e.target.value)}
-                value={searchQuery}
+                // value={searchQuery}
                 className="py-1.5 w-full bg-transparent outline-none placeholder-gray-500"
                 type="text"
                 placeholder="Search..."
