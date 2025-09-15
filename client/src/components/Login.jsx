@@ -40,7 +40,6 @@ function Login() {
 
       if (data.success) {
         setUser(data.user);
-        localStorage.setItem("token", data.token);
         toast.success("Logged in with Google");
         setShowUserLogin(false);
         navigate("/");
