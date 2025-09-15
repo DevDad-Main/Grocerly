@@ -66,10 +66,10 @@ const MyOrders = () => {
               {currency}
             </span>
             <span>
-              Address: {order.address.street}, {order.address.city}{" "}
-              {order.address.state} {order.address.country}{" "}
+              Address: {order.address?.street}, {order.address?.city}{" "}
+              {order.address?.state} {order.address?.country}{" "}
             </span>
-            <span>Phone Number: {order.address.phone}</span>
+            <span>Phone Number: {order.address?.phone}</span>
             <button
               className="text-primary cursor-pointer font-medium hover:-translate-y-0.5"
               onClick={() => navigate(`/order/${order._id}`)}

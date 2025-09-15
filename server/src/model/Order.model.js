@@ -22,7 +22,6 @@ const orderSchema = new mongoose.Schema(
         quantity: { type: Number, required: true },
       },
     ],
-
     total: { type: Number, required: true },
     paymentType: { type: String, enum: ["COD", "Card"], required: true },
     status: {
@@ -36,6 +35,7 @@ const orderSchema = new mongoose.Schema(
       ref: "DeliverySlot",
       required: true,
     },
+    points: { type: Number, default: 0, required: true },
   },
   { timestamps: true },
 );

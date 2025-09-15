@@ -24,6 +24,7 @@ import OrderDetails from "./pages/OrderDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UpdateProduct from "./pages/admin/UpdateProduct";
 import AdminDashboard from "./components/admin/AdminDashboard";
+import UserDashboard from "./components/UserDashboard";
 const App = () => {
   const isSellerPath = useLocation().pathname.includes("admin");
 
@@ -53,6 +54,7 @@ const App = () => {
             }
           />
           <Route path="/add-address" element={<AddAddress />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/orders" element={<MyOrders />} />
           <Route path="/order/:orderId" element={<OrderDetails />} />
           <Route path="/delivery-slot" element={<DeliverySlotTable />} />

@@ -7,7 +7,7 @@ const Loading = () => {
   const { search } = useLocation();
   const query = new URLSearchParams(search);
 
-  const nextUrl = query.get("next"); // e.g. "orders"
+  const nextUrl = query.get("next"); // e.g. "dashboard"
   const sessionId = query.get("session_id"); // Stripe injects this
 
   const [status, setStatus] = useState("Verifying payment...");

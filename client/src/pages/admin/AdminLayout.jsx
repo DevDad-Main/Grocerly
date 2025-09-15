@@ -16,7 +16,7 @@ const AdminLayout = () => {
       path: "/admin/product-list",
       icon: assets.product_list_icon,
     },
-    { name: "Orders", path: "/admin/orders", icon: assets.order_icon },
+    // { name: "Orders", path: "/admin/orders", icon: assets.order_icon },
   ];
 
   const logout = async () => {

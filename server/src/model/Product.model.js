@@ -26,6 +26,7 @@ const productSchema = new mongoose.Schema(
       unique: true,
     },
     inStock: { type: Boolean, default: true },
+    points: { type: Number, default: 5 },
   },
   { timestamps: true },
 );

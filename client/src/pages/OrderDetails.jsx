@@ -59,19 +59,23 @@ const OrderDetails = () => {
             <p className="font-medium text-primary">
               {item.product.offerPrice * item.quantity} {currency}
             </p>
+            <p className="font-medium text-primary">
+              Points: {item.product.points * item.quantity}
+            </p>
           </div>
         ))}
       </div>
 
       <div className="mt-6 flex flex-col md:flex-row md:justify-between items-start md:items-center">
         <p className="text-lg font-medium">
-          Total: {order.total} {currency} {"(3% Tax)"}
+          Total: {order.total} {currency}
+          {/* Total: {order.total} {currency} {"(3% Tax)"} */}
         </p>
         <button
-          onClick={() => navigate("/orders")}
+          onClick={() => navigate("/dashboard")}
           className="mt-4 md:mt-0 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition"
         >
-          Back to Orders
+          Back to Dashboard
         </button>
       </div>
     </div>

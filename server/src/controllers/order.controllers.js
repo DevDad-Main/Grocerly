@@ -121,13 +121,20 @@ export const placeOrderWithStripe = async (req, res) => {
       };
     });
 
-    // add tax line item (3% of cart total)
+    // Work out cart total
     const cartSubtotal = items.reduce((acc, item) => {
       const product = products.find((p) => p._id.equals(item.product));
       return acc + product.offerPrice * item.quantity;
     }, 0);
 
+    // add tax line item (3% of cart total)
     const taxAmount = Math.floor(cartSubtotal * threePercentTax * 100);
+
+    // Calculate Total Points for the Order
+    const pointsTotal = items.reduce((acc, item) => {
+      const product = products.find((p) => p._id.equals(item.product));
+      return acc + product.points * item.quantity;
+    }, 0);
 
     if (taxAmount > 0) {
       line_items.push({
@@ -162,6 +169,7 @@ export const placeOrderWithStripe = async (req, res) => {
       address,
       deliverySlot: draftOrder.deliverySlot,
       paymentType: "Card",
+      points: pointsTotal,
     });
 
     await order.save({ session });
@@ -182,7 +190,7 @@ export const placeOrderWithStripe = async (req, res) => {
       payment_method_types: ["card"],
       mode: "payment",
       line_items,
-      success_url: `${origin}/loading?next=orders&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/loading?next=dashboard&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/cart`,
       customer_email: user.email,
       payment_intent_data: {

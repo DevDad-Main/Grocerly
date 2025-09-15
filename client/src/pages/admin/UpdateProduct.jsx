@@ -16,6 +16,7 @@ const UpdateProduct = () => {
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
   const [offerPrice, setOfferPrice] = useState("");
+  const [points, setProductPoints] = useState("");
 
   // Load product data on mount
   useEffect(() => {
@@ -29,6 +30,7 @@ const UpdateProduct = () => {
           setCategory(product.category);
           setPrice(product.price);
           setOfferPrice(product.offerPrice);
+          setProductPoints(product.points);
 
           // Preload existing images
           setFiles(product.image); // array of URLs initially
@@ -67,6 +69,7 @@ const UpdateProduct = () => {
         category,
         price,
         offerPrice,
+        points,
       };
 
       const formData = new FormData();
@@ -226,6 +229,22 @@ const UpdateProduct = () => {
               onChange={(e) => setOfferPrice(e.target.value)}
               value={offerPrice}
               id="offer-price"
+              type="number"
+              placeholder="0"
+              className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+              required
+            />
+          </div>
+        </div>
+        <div className="flex items-center gap-5 flex-wrap">
+          <div className="flex-1 flex flex-col gap-1 w-32">
+            <label className="text-base font-medium" htmlFor="product-points">
+              Product Points
+            </label>
+            <input
+              onChange={(e) => setProductPoints(e.target.value)}
+              value={points}
+              id="product-points"
               type="number"
               placeholder="0"
               className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"

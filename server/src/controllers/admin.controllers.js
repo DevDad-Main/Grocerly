@@ -146,6 +146,7 @@ export const updateProduct = async (req, res) => {
     product.category = productData.category ?? product.category;
     product.price = productData.price ?? product.price;
     product.offerPrice = productData.offerPrice ?? product.offerPrice;
+    product.points = productData.points ?? product.points;
 
     await product.save();
 
