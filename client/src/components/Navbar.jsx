@@ -92,7 +92,22 @@ const Navbar = () => {
           <NavLink to="/products">Products</NavLink>
           <NavLink to="/contact">Contact</NavLink>
           {user && !draftOrder ? (
-            <NavLink to="/delivery-slot">Book Delivery</NavLink>
+            <NavLink
+              to="/delivery-slot"
+              className="flex gap-2 rounded-md bg-gray-200/50 p-0.5 hover:bg-gray-200"
+            >
+              Delivery
+              <div className="flex flex-row items-center gap-2 cursor-pointer">
+                <div className="relative">
+                  <Truck className="w-6 h-6 text-primary" />
+
+                  {/* Red exclamation badge */}
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full">
+                    !
+                  </span>
+                </div>
+              </div>
+            </NavLink>
           ) : null}
 
           <div className="hidden lg:flex items-center text-sm gap-2 border border-gray-300 px-3 rounded-lg">
