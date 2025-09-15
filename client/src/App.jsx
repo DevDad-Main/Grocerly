@@ -23,6 +23,7 @@ import Loading from "./components/Loading";
 import OrderDetails from "./pages/OrderDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UpdateProduct from "./pages/admin/UpdateProduct";
+import AdminDashboard from "./components/admin/AdminDashboard";
 const App = () => {
   const isSellerPath = useLocation().pathname.includes("admin");
 
@@ -60,10 +61,16 @@ const App = () => {
             path="/admin"
             element={isAdmin ? <AdminLayout /> : <AdminLogin />}
           >
-            <Route index element={isAdmin ? <AddProduct /> : null} />
+            <Route index element={isAdmin ? <AdminDashboard /> : null} />
             <Route
               path="/admin/product-list"
               element={isAdmin ? <ProductList /> : null}
+            />
+
+            <Route
+              index
+              path="/admin/add-product"
+              element={isAdmin ? <AddProduct /> : null}
             />
             <Route
               path="/admin/product/:id"
