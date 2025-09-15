@@ -164,17 +164,18 @@ const Navbar = () => {
           {user && !draftOrder ? (
             <div
               onClick={() => navigate("/delivery-slot")}
-              className="flex flex-row items-start gap-1  cursor-pointer"
+              className="flex flex-row items-center gap-2 cursor-pointer"
             >
-              {" "}
-              <p>
-                <span className="text-primary">Book </span>Delivery
-              </p>
-              <Truck className="flex" />
+              <div className="relative">
+                <Truck className="w-6 h-6 text-primary" />
+
+                {/* Red exclamation badge */}
+                <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full">
+                  !
+                </span>
+              </div>
             </div>
-          ) : (
-            ""
-          )}
+          ) : null}{" "}
           {user && (
             <div
               onClick={() => navigate("/cart")}
@@ -190,7 +191,6 @@ const Navbar = () => {
               </button>
             </div>
           )}
-
           <button
             onClick={() => (open ? setOpen(false) : setOpen(true))}
             aria-label="Menu"
