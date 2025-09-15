@@ -188,10 +188,10 @@ const Navbar = () => {
 
         {open && (
           <div
-            className={`${open ? "flex" : "hidden"} absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden`}
+            className={`${open ? "flex" : "hidden"} absolute top-[60px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-4 px-5 text-md md:hidden rounded-lg`}
           >
             {/* ✅ Mobile Search Bar */}
-            <div className="flex items-center text-sm gap-2 border border-gray-300 px-3 rounded-lg w-full mb-4">
+            <div className="flex items-center text-md gap-4 border border-gray-300 px-3 rounded-lg w-full mb-4 p-2">
               <input
                 onChange={(e) => setSearchQuery(e.target.value)}
                 // value={searchQuery}
@@ -216,8 +216,8 @@ const Navbar = () => {
             </NavLink>
 
             {user && (
-              <NavLink to="/orders" onClick={() => setOpen(false)}>
-                My Orders
+              <NavLink to="/dashboard" onClick={() => setOpen(false)}>
+                Dashboard
               </NavLink>
             )}
 
