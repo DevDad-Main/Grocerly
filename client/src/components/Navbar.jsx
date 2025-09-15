@@ -4,6 +4,7 @@ import { assets } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 import { googleLogout } from "@react-oauth/google";
+import { Truck } from "lucide-react";
 
 const Navbar = () => {
   const [open, setOpen] = React.useState(false);
@@ -90,8 +91,11 @@ const Navbar = () => {
           <NavLink to="/">Home</NavLink>
           <NavLink to="/products">Products</NavLink>
           <NavLink to="/contact">Contact</NavLink>
+          {user && !draftOrder ? (
+            <NavLink to="/delivery-slot">Book Delivery</NavLink>
+          ) : null}
 
-          <div className="hidden lg:flex items-center text-sm gap-2 border border-gray-300 px-3 rounded-full">
+          <div className="hidden lg:flex items-center text-sm gap-2 border border-gray-300 px-3 rounded-lg">
             <input
               onChange={(e) => setSearchQuery(e.target.value)}
               className="py-1.5 w-full bg-transparent outline-none placeholder-gray-500"
@@ -157,6 +161,20 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-6 sm:hidden">
+          {user && !draftOrder ? (
+            <div
+              onClick={() => navigate("/delivery-slot")}
+              className="flex flex-row items-start gap-1  cursor-pointer"
+            >
+              {" "}
+              <p>
+                <span className="text-primary">Book </span>Delivery
+              </p>
+              <Truck className="flex" />
+            </div>
+          ) : (
+            ""
+          )}
           {user && (
             <div
               onClick={() => navigate("/cart")}
