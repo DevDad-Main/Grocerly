@@ -66,3 +66,22 @@ export const getUserAddresses = async (req, res) => {
 };
 
 //#endregion
+
+//#region Delete User Address By Id api/v1/address/delete/:id
+export const deleteAddressById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return res.json({ success: false, message: "Invalid Address Id" });
+    }
+
+    await Address.findByIdAndDelete(id);
+
+    return res.status(200).json({ success: true, message: "Address Deleted" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+//#endregion

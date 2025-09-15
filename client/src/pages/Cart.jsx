@@ -3,6 +3,7 @@ import { useAppContext } from "../context/AppContext";
 import { assets, dummyAddress } from "../assets/assets";
 import toast from "react-hot-toast";
 import { useLocation } from "react-router-dom";
+import { TrashIcon } from "lucide-react";
 
 const Cart = () => {
   const {
@@ -110,6 +111,27 @@ const Cart = () => {
         } else {
           toast.error(data.message);
         }
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleDeleteAddress = async (id) => {
+    try {
+      const { data } = await axios.delete(`/api/v1/address/delete/${id}`);
+
+      if (data.success) {
+        toast.success(data.message);
+        // Remove from local state
+        setAddresses((prev) => prev.filter((addr) => addr._id !== id));
+
+        // If deleted address was selected, reset selectedAddress
+        if (selectedAddress && selectedAddress._id === id) {
+          setSelectedAddress(addresses[0] || null);
+        }
+      } else {
+        toast.error(data.message);
       }
     } catch (error) {
       toast.error(error.message);
@@ -292,24 +314,40 @@ const Cart = () => {
             >
               Change
             </button>
+
             {showAddress && (
               <div className="absolute top-10 left-0 w-full bg-white border border-gray-300 text-sm z-10 shadow-md">
                 {addresses.map((address) => (
-                  <p
+                  <div
                     key={address._id}
-                    onClick={() => {
-                      setSelectedAddress(address);
-                      setShowAddress(false);
-                    }}
-                    className={`p-2 cursor-pointer hover:bg-gray-100 ${
+                    className={`flex items-center justify-between p-2 ${
                       selectedAddress?._id === address._id
                         ? "bg-green-100 font-medium"
-                        : ""
+                        : "hover:bg-gray-100"
                     }`}
                   >
-                    {address.street}, {address.city}, {address.state},{" "}
-                    {address.country}
-                  </p>
+                    <p
+                      onClick={() => {
+                        setSelectedAddress(address);
+                        setShowAddress(false);
+                      }}
+                      className="cursor-pointer flex-1"
+                    >
+                      {address.street}, {address.city}, {address.state},{" "}
+                      {address.country}
+                    </p>
+
+                    {/* Trash button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent selecting address
+                        handleDeleteAddress(address._id);
+                      }}
+                      className="ml-2 text-red-500 hover:text-red-700"
+                    >
+                      <TrashIcon />
+                    </button>
+                  </div>
                 ))}
 
                 <p
@@ -319,7 +357,7 @@ const Cart = () => {
                   + Add New Address
                 </p>
               </div>
-            )}{" "}
+            )}
           </div>
 
           <p className="text-sm font-medium uppercase mt-6">Delivery Slot</p>
