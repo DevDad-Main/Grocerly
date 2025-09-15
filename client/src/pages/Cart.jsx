@@ -25,7 +25,7 @@ const Cart = () => {
   const [cartArray, setCartArray] = useState([]);
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
-  const [paymentOption, setPaymentOption] = useState("COD");
+  const [paymentOption, setPaymentOption] = useState("Card");
 
   //NOTE: Only keeping this func call here as we are getting the card and specifically setting the cart array to our cartItems
   // const getUserCart = async () => {

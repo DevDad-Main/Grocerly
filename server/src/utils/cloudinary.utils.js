@@ -22,6 +22,19 @@ export const uploadBufferToCloudinary = async (buffer, folderId) => {
     streamifier.createReadStream(buffer).pipe(stream);
   });
 };
+
+export const getPublicIdFromUrl = (url) => {
+  const parts = url.split("/");
+  const fileWithExtension = parts.pop(); // 'filename.jpg'
+  const folder = parts.slice(-2).join("/"); // 'Grocerly/folderId'
+  const publicId = `${folder}/${fileWithExtension.split(".")[0]}`;
+  return publicId;
+};
+
+export const deleteImageFromCloudinary = async (publicId) => {
+  return cloudinary.uploader.destroy(publicId, { resource_type: "auto" });
+};
+
 // const uploadOnCloudinary = async (localFilePath, folderId) => {
 //   try {
 //     if (!localFilePath) return null;

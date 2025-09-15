@@ -1,5 +1,9 @@
 import jwt from "jsonwebtoken";
-import { uploadBufferToCloudinary } from "../utils/cloudinary.utils.js";
+import {
+  deleteImageFromCloudinary,
+  getPublicIdFromUrl,
+  uploadBufferToCloudinary,
+} from "../utils/cloudinary.utils.js";
 import { Product } from "../model/Product.model.js";
 import { isValidObjectId } from "mongoose";
 
@@ -97,6 +101,7 @@ export const updateProduct = async (req, res) => {
     // Parse productData and existingImages from req.body
     const productData = JSON.parse(req.body.productData);
     const existingImages = JSON.parse(req.body.existingImages || "[]");
+    const images = req.files || [];
 
     if (!isValidObjectId(id)) {
       return res
@@ -111,8 +116,17 @@ export const updateProduct = async (req, res) => {
         .json({ success: false, message: "Product not found" });
     }
 
-    // Handle new uploaded images
-    const images = req.files || [];
+    const currentImages = product.image;
+    const imagesToDelete = currentImages.filter(
+      (img) => !existingImages.includes(img),
+    );
+
+    for (let url of imagesToDelete) {
+      const publicId = getPublicIdFromUrl(url);
+      console.log(publicId);
+      await deleteImageFromCloudinary(publicId);
+    }
+
     const newImageUrls = await Promise.all(
       images.map(async (file) => {
         const result = await uploadBufferToCloudinary(
@@ -134,6 +148,7 @@ export const updateProduct = async (req, res) => {
     product.offerPrice = productData.offerPrice ?? product.offerPrice;
 
     await product.save();
+
     return res.status(200).json({ success: true, message: "Product Updated" });
   } catch (error) {
     return res.status(error.status || 500).json({
