@@ -63,7 +63,7 @@ const ProductDetails = () => {
               ))}
             </div>
 
-            <div className="border border-gray-500/30 max-w-100 rounded overflow-hidden">
+            <div className="border border-gray-500/30 max-w-100 max-h-80 rounded overflow-hidden">
               <img
                 src={thumbnail}
                 alt="Selected product"
@@ -89,9 +89,10 @@ const ProductDetails = () => {
             </div>
 
             <div className="mt-6">
-              <p className="text-gray-500/70 line-through">
-                MRP: {product.price} {currency}
-              </p>
+              {/* We need to do something with later when we set up discounts */}
+              {/* <p className="text-gray-500/70 line-through"> */}
+              {/*   MRP: {product.price} {currency} */}
+              {/* </p> */}
 
               <p className="text-2xl font-medium">
                 MRP: {product.offerPrice} {currency}
