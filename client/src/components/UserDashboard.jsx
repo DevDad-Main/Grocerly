@@ -14,6 +14,20 @@ const UserDashboard = () => {
     discounts: 0,
   });
 
+  useEffect(() => {
+    const fetchUserPoints = async () => {
+      try {
+        const { data } = await axios.get("/api/v1/user/points");
+        if (data.success) {
+          setUserPoints(data?.points || 0);
+        }
+      } catch (error) {
+        toast.error(error.message || "Failed to fetch user points");
+      }
+    };
+    fetchUserPoints();
+  }, [axios]);
+
   // Fetch user details
   useEffect(() => {
     // if (!user) return navigate("/login");
@@ -28,8 +42,6 @@ const UserDashboard = () => {
             ...prev,
             totalOrders: orderData.orders.length,
           }));
-
-          setUserPoints(user?.points || 0);
         }
 
         // Addresses
