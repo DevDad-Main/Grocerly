@@ -15,12 +15,15 @@ const UserDashboard = () => {
   });
 
   useEffect(() => {
-    if (orders.length > 0) {
-      setUserPoints(
-        orders.reduce((acc, order) => acc + (order.points || 0), 0),
-      );
+    if (user) {
+      setUserPoints(user.points || 0);
     }
-  }, [orders]);
+    // if (orders.length > 0) {
+    //   setUserPoints(
+    //     orders.reduce((acc, order) => acc + (order.points || 0), 0),
+    //   );
+    // }
+  }, [user]);
 
   // Fetch user details
   useEffect(() => {

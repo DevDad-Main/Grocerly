@@ -25,6 +25,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import UpdateProduct from "./pages/admin/UpdateProduct";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import UserDashboard from "./components/UserDashboard";
+import Rewards from "./components/Rewards";
 const App = () => {
   const isSellerPath = useLocation().pathname.includes("admin");
 
@@ -45,6 +46,7 @@ const App = () => {
           <Route path="/products" element={<AllProducts />} />
           <Route path="/products/:category" element={<ProductCategory />} />
           <Route path="/products/:category/:id" element={<ProductDetails />} />
+          <Route path="/rewards" element={user ? <Rewards /> : null} />
           <Route
             path="/cart"
             element={

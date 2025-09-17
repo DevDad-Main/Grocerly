@@ -90,6 +90,7 @@ const Navbar = () => {
         <div className="hidden sm:flex items-center gap-8">
           <NavLink to="/">Home</NavLink>
           <NavLink to="/products">Products</NavLink>
+          <NavLink to="/rewards">Rewards</NavLink>
           <NavLink to="/contact">Contact</NavLink>
           {user && !draftOrder ? (
             <NavLink

@@ -245,7 +245,17 @@ export const getUserPoints = async (req, res) => {
     }
 
     const user = await User.findById(userId).select("points");
-  } catch (error) {}
-};
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
 
+    console.log(user);
+    return res.status(200).json({ success: true, points: user.points });
+  } catch (error) {
+    return res.status(error.status || 500).json({
+      status: error.status || 500,
+      message: error.message,
+    });
+  }
+};
 //#endregion
