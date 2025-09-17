@@ -18,7 +18,7 @@ const options = {
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 //#endregion;
 
-//#region Google OAuth callback handler
+//#region Google OAuth callback handler -> api/v1/user/google-login
 export const googleLogin = async (req, res) => {
   try {
     const { credential } = req.body;
@@ -234,4 +234,18 @@ export const getUserAuthentication = async (req, res, next) => {
     });
   }
 };
+//#endregion
+
+//#region Get User Points api/v1/user/points
+export const getUserPoints = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    if (!isValidObjectId(userId)) {
+      return res.json({ success: false, message: "Invalid User Id" });
+    }
+
+    const user = await User.findById(userId).select("points");
+  } catch (error) {}
+};
+
 //#endregion

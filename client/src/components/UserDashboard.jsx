@@ -74,41 +74,79 @@ const UserDashboard = () => {
         </div>
       </div>
 
-      {/* Recent Orders */}
       <div className="bg-white shadow-md rounded-xl p-5 mb-10">
         <h2 className="text-lg font-semibold mb-3">Recent Orders</h2>
-        {orders.length > 0 ? (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left border-b">
-                <th className="py-2">Order ID</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Total</th>
-                <th>Points</th>
-              </tr>
-            </thead>
-            <tbody>
+
+        {/* Desktop / Tablet View */}
+        <div className="hidden md:block">
+          {orders.length > 0 ? (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left border-b">
+                  <th className="py-2">Order ID</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Total</th>
+                  <th>Points</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr
+                    key={order._id}
+                    className="border-b hover:bg-gray-50 hover:cursor-pointer"
+                    onClick={() => navigate(`/order/${order._id}`)}
+                  >
+                    <td className="py-2 font-bold">#{order._id}</td>
+                    <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                    <td>{order.status}</td>
+                    <td>
+                      {order.total} {currency}
+                    </td>
+                    <td>{order.points}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No recent orders.</p>
+          )}
+        </div>
+
+        {/* Mobile View */}
+        <div className="md:hidden">
+          {orders.length > 0 ? (
+            <div className="space-y-4">
               {orders.map((order) => (
-                <tr
+                <div
                   key={order._id}
-                  className="border-b hover:bg-gray-50 hover:cursor-pointer"
+                  className="border rounded-lg p-3 shadow-sm hover:bg-gray-50 cursor-pointer"
                   onClick={() => navigate(`/order/${order._id}`)}
                 >
-                  <td className="py-2 font-bold">#{order._id}</td>
-                  <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                  <td>{order.status}</td>
-                  <td>
-                    {order.total} {currency}
-                  </td>
-                  <td>{order.points}</td>
-                </tr>
+                  <p className="font-bold text-primary">Order #{order._id}</p>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-semibold">Date:</span>{" "}
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-semibold">Status:</span>{" "}
+                    {order.status}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-semibold">Total:</span> {order.total}{" "}
+                    {currency}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-semibold">Points:</span>{" "}
+                    {order.points}
+                  </p>
+                </div>
               ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No recent orders.</p>
-        )}
+            </div>
+          ) : (
+            <p>No recent orders.</p>
+          )}
+        </div>
       </div>
 
       {/* Saved Addresses */}

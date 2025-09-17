@@ -1,8 +1,11 @@
 import React from "react";
 import { assets } from "../assets/assets";
 import { Link } from "react-router-dom";
+import { useAppContext } from "../context/AppContext";
 
 const MainBanner = () => {
+  const { draftOrder } = useAppContext();
+
   return (
     <div className="relative mt-32">
       <img
@@ -21,7 +24,7 @@ const MainBanner = () => {
         </h1>
         <div className="flex items-center mt-6 font-medium">
           <Link
-            to={"/products"}
+            to={draftOrder ? "/products" : "/delivery-slot"}
             className="group flex items-center gap-2 px-7 md:px-9 py-3 bg-primary hover:bg-primary-dull transition rounded text-white cursor-pointer"
           >
             Shop Now

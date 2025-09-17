@@ -65,7 +65,7 @@ export const adminLogout = async (req, res) => {
 };
 //#endregion
 
-//#region Admin Delete Product
+//#region Admin Delete Product -> api/v1/admin/delete-product/:id
 export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.body;
@@ -93,7 +93,7 @@ export const deleteProduct = async (req, res) => {
 };
 //#endregion
 
-//#region Admin Update Product
+//#region Admin Update Product -> api/v1/admin/product-update/:id
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -160,7 +160,7 @@ export const updateProduct = async (req, res) => {
 };
 //#endregion
 
-//#region Get Product By Id
+//#region Get Product By Id -> api/v1/admin/product/:id
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
