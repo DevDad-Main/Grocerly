@@ -38,10 +38,27 @@ app.use(
     origin: allowedOrigins,
     methods: ["PATCH", "POST", "PUT", "GET", "DELETE", "OPTIONS"],
     allowedHeaders: [
+      // Indicates the media type of the resource (e.g., application/json, text/html).
       "Content-Type",
+
+      // Used to pass authentication credentials such as JWTs, API keys, or OAuth tokens.
       "Authorization",
+
+      // Commonly used by AJAX requests (e.g., XMLHttpRequest) to identify them as being made via JavaScript.
+      "X-Requested-With",
+
+      // Custom header often used to persist device sessions or remember a user across requests.
+      "device-remember-token",
+
+      // Lists the HTTP headers that are permitted in requests; usually handled by the server,
+      // but sometimes included here for compatibility.
       "Access-Control-Allow-Headers",
-      // "Access-Control-Allow-Origin",
+
+      // Identifies where the request originated (scheme, host, port) — used by CORS for validation.
+      "Origin",
+
+      // Tells the server which content types the client is willing to accept in the response (e.g., JSON, XML).
+      "Accept",
     ],
     credentials: true,
     // optionsSuccessStatus: 200,
