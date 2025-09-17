@@ -14,6 +14,8 @@ import deliveryRoutes from "./routes/deliverySlot.routes.js";
 import draftOrderRoutes from "./routes/draftOrder.routes.js";
 // import { stripeWebHook } from "./controllers/order.controllers.js";
 import stripeRoutes from "./routes/stripe.routes.js";
+import { rateLimit } from "express-rate-limit";
+import hpp from "hpp";
 
 //#region CONSTANTS
 const app = express();
@@ -21,7 +23,16 @@ const allowedOrigins = process.env.CORS_ORIGIN.split(","); // split comma-separa
 //#endregion
 
 //#region Middlewares
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again later.",
+});
 
+//Middleware to protect against HTTP Parameter Pollution
+app.use(hpp());
+// We will only use it for routes that start with /api
+app.use("/api", limiter);
 app.use(
   cors({
     origin: allowedOrigins,

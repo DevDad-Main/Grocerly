@@ -14,17 +14,6 @@ const UserDashboard = () => {
     discounts: 0,
   });
 
-  useEffect(() => {
-    if (user) {
-      setUserPoints(user.points || 0);
-    }
-    // if (orders.length > 0) {
-    //   setUserPoints(
-    //     orders.reduce((acc, order) => acc + (order.points || 0), 0),
-    //   );
-    // }
-  }, [user]);
-
   // Fetch user details
   useEffect(() => {
     // if (!user) return navigate("/login");
@@ -39,6 +28,8 @@ const UserDashboard = () => {
             ...prev,
             totalOrders: orderData.orders.length,
           }));
+
+          setUserPoints(user?.points || 0);
         }
 
         // Addresses
