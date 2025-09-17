@@ -29,6 +29,17 @@ export const placeOrderWithCOD = async (req, res) => {
       });
     }
 
+    // Fetch all products safely
+    const productIds = items.map((item) => item.product);
+
+    const products = await Product.find({ _id: { $in: productIds } });
+
+    // Calculate Total Points for the Order
+    const pointsTotal = items.reduce((acc, item) => {
+      const product = products.find((p) => p._id.equals(item.product));
+      return acc + product.points * item.quantity;
+    }, 0);
+
     const draftOrder = await DraftOrder.findOneAndDelete(
       { userId },
       { session },
@@ -52,9 +63,17 @@ export const placeOrderWithCOD = async (req, res) => {
       address,
       deliverySlot: draftOrder.deliverySlot,
       paymentType: "COD",
+      points: pointsTotal,
     });
 
     await order.save({ session });
+
+    // Increment the users points total by the amount of the order
+    await User.findByIdAndUpdate(
+      userId,
+      { $inc: { points: pointsTotal } },
+      { session },
+    );
 
     await session.commitTransaction();
     session.endSession();
@@ -173,6 +192,13 @@ export const placeOrderWithStripe = async (req, res) => {
     });
 
     await order.save({ session });
+
+    // Increment the users points total by the amount of the order
+    await User.findByIdAndUpdate(
+      userId,
+      { $inc: { points: pointsTotal } },
+      { session },
+    );
 
     // const stripeSession = await stripe.checkout.sessions.create({
     //   payment_method_types: ["card"],

@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema(
       },
     ],
     authProvider: { type: String, enum: ["local", "google"], default: "local" },
+    points: { type: Number, default: 0 },
   },
   { timestamps: true, minimize: false },
 );
