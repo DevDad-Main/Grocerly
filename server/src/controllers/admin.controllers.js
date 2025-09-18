@@ -230,11 +230,6 @@ export const getDashboard = async (req, res) => {
 
     const pendingOrders = orders.filter((order) => order.status === "pending");
 
-    console.log(revenue);
-    console.log(pendingOrders);
-    console.log(formattedRevenue);
-    console.log(orders, customers);
-
     return res.status(200).json({
       success: true,
       orders,

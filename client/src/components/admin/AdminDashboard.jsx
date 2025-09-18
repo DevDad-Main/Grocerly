@@ -22,60 +22,8 @@ import { useAppContext } from "../../context/AppContext"
 const adminData = {
   name: "Admin User",
   email: "admin@grocerly.com",
-  stats: {
-    totalCustomers: 1240,
-    totalOrders: 856,
-    revenue: 45230,
-    pendingOrders: 12,
-  },
-  recentOrders: [
-    {
-      id: 1,
-      customer: "Alice",
-      total: 45,
-      status: "Delivered",
-      date: "2025-09-15",
-    },
-    {
-      id: 2,
-      customer: "Bob",
-      total: 30,
-      status: "Processing",
-      date: "2025-09-15",
-    },
-    {
-      id: 3,
-      customer: "Charlie",
-      total: 78,
-      status: "Delivered",
-      date: "2025-09-14",
-    },
-  ],
 };
 
-const adminOrders = [
-  {
-    id: 1,
-    customer: "Alice",
-    total: 45,
-    status: "Delivered",
-    date: "2025-09-15",
-  },
-  {
-    id: 2,
-    customer: "Bob",
-    total: 30,
-    status: "Processing",
-    date: "2025-09-15",
-  },
-  {
-    id: 3,
-    customer: "Charlie",
-    total: 78,
-    status: "Pending",
-    date: "2025-09-14",
-  },
-];
 
 function AdminDashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -88,12 +36,14 @@ function AdminDashboard() {
     const fetchAdminData = async () => {
       try {
         const { data } = await axios.get('/api/v1/admin/dashboard');
-        console.log(data)
         if (data.success) {
           setData(data)
           toast.success(data.message || "Admin Data Fetched")
+        } else {
+          toast.error(data.message);
         }
       } catch (error) {
+        toast.error(error.message)
         console.log(error)
       }
     }
@@ -139,63 +89,16 @@ function AdminDashboard() {
     );
   };
   // in component
-  const [orders, setOrders] = useState(adminOrders);
+  // const [orders, setOrders] = useState(adminOrders);
 
   // filter orders for selected date
-  const ordersForDay = orders.filter(
-    (order) => order.date === selectedDate.toISOString().split("T")[0],
+  const ordersForDay = data?.orders?.filter(
+    (order) => order.createdAt.split("T")[0] === selectedDate.toISOString().split("T")[0],
   );
 
 
   return (
     <div className="min-h-screen bg-gray-50 w-full">
-      {/* Navbar */}
-      {/* <nav className="bg-white shadow-sm border-b sticky top-0 z-50"> */}
-      {/*   <div className="w-full mx-auto px-6"> */}
-      {/*     <div className="flex justify-between items-center h-16"> */}
-      {/*       <Link to="/" className="text-2xl font-bold text-gray-900"> */}
-      {/*         Grocerly <span className="text-green-500">Admin</span> */}
-      {/*       </Link> */}
-      {/**/}
-      {/*       {/* Desktop nav */}
-      {/*       <div className="hidden md:flex items-center space-x-4"> */}
-      {/*         <Button variant="ghost"> */}
-      {/*           <Settings className="inline mr-1 h-4 w-4" /> */}
-      {/*           Settings */}
-      {/*         </Button> */}
-      {/*         <Button variant="ghost"> */}
-      {/*           <LogOut className="inline mr-1 h-4 w-4" /> */}
-      {/*           Logout */}
-      {/*         </Button> */}
-      {/*         <div className="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center text-green-800 font-bold"> */}
-      {/*           {adminData.name[0]} */}
-      {/*         </div> */}
-      {/*       </div> */}
-      {/**/}
-      {/*       {/* Mobile menu */}
-      {/*       <div className="md:hidden"> */}
-      {/*         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}> */}
-      {/*           {mobileMenuOpen ? ( */}
-      {/*             <X className="h-6 w-6" /> */}
-      {/*           ) : ( */}
-      {/*             <Menu className="h-6 w-6" /> */}
-      {/*           )} */}
-      {/*         </button> */}
-      {/*       </div> */}
-      {/*     </div> */}
-      {/**/}
-      {/*     {mobileMenuOpen && ( */}
-      {/*       <div className="md:hidden border-t bg-white p-2 space-y-1"> */}
-      {/*         <Button variant="ghost" className="w-full"> */}
-      {/*           Settings */}
-      {/*         </Button> */}
-      {/*         <Button variant="ghost" className="w-full"> */}
-      {/*           Logout */}
-      {/*         </Button> */}
-      {/*       </div> */}
-      {/*     )} */}
-      {/*   </div> */}
-      {/* </nav> */}
       {/* Main content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header */}
@@ -326,12 +229,12 @@ function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {adminOrders.map((order) => (
+                  {data?.orders?.map((order) => (
                     <tr key={order.id} className="text-center border-b">
-                      <td className="p-2">{order.customer}</td>
-                      <td className="p-2">${order.total}</td>
-                      <td className="p-2">{order.status}</td>
-                      <td className="p-2">{order.date}</td>
+                      <td className="p-2">{order?.userId.name}</td>
+                      <td className="p-2">${order?.total}</td>
+                      <td className="p-2">{order?.status}</td>
+                      <td className="p-2">{new Date(order.createdAt).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -353,7 +256,7 @@ function AdminDashboard() {
                   onChange={setSelectedDate}
                   tileClassName={({ date, view }) => {
                     const day = date.toISOString().split("T")[0];
-                    return orders.some((o) => o.date === day)
+                    return data?.orders?.some((o) => o.createdAt.split("T")[0] === day)
                       ? "bg-green-100 rounded"
                       : "";
                   }}
@@ -374,16 +277,16 @@ function AdminDashboard() {
                         className="flex justify-between p-3 border rounded-lg bg-gray-50"
                       >
                         <div>
-                          <p className="font-medium">{order.customer}</p>
-                          <p className="text-sm text-gray-500">{order.date}</p>
+                          <p className="font-medium">{order.userId.name}</p>
+                          <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
                         </div>
                         <div className="text-right">
                           <p className="font-medium">${order.total}</p>
                           <Badge
                             color={
-                              order.status === "Delivered"
+                              order.status === "completed"
                                 ? "green"
-                                : order.status === "Processing"
+                                : order.status === "pending"
                                   ? "yellow"
                                   : "red"
                             }
