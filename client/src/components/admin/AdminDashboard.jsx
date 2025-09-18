@@ -13,6 +13,10 @@ import {
 import { Link } from "react-router-dom";
 import { Calendar } from "react-calendar";
 import "react-calendar/dist/Calendar.css"; // for basic calendar styles
+import { useEffect } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useAppContext } from "../../context/AppContext"
 
 // Mock data
 const adminData = {
@@ -77,6 +81,25 @@ function AdminDashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [activeTab, setActiveTab] = useState("overview");
+  const [data, setData] = useState({})
+  const { axios, currency } = useAppContext();
+
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      try {
+        const { data } = await axios.get('/api/v1/admin/dashboard');
+        console.log(data)
+        if (data.success) {
+          setData(data)
+          toast.success(data.message || "Admin Data Fetched")
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchAdminData()
+  }, [])
+
 
   // Reusable Tailwind-styled components
   const Card = ({ children }) => (
@@ -122,6 +145,7 @@ function AdminDashboard() {
   const ordersForDay = orders.filter(
     (order) => order.date === selectedDate.toISOString().split("T")[0],
   );
+
 
   return (
     <div className="min-h-screen bg-gray-50 w-full">
@@ -197,7 +221,7 @@ function AdminDashboard() {
                   Total Customers
                 </p>
                 <p className="text-3xl font-bold text-gray-900">
-                  {adminData.stats.totalCustomers}
+                  {data?.customers?.length}
                 </p>
               </div>
               <Users className="h-6 w-6 text-green-600" />
@@ -211,7 +235,7 @@ function AdminDashboard() {
                   Total Orders
                 </p>
                 <p className="text-3xl font-bold text-gray-900">
-                  {adminData.stats.totalOrders}
+                  {data.orders?.length}
                 </p>
               </div>
               <ShoppingCart className="h-6 w-6 text-blue-600" />
@@ -223,10 +247,9 @@ function AdminDashboard() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Revenue</p>
                 <p className="text-3xl font-bold text-gray-900">
-                  ${adminData.stats.revenue}
+                  {data.formattedRevenue || 0}
                 </p>
               </div>
-              <DollarSign className="h-6 w-6 text-yellow-600" />
             </div>
           </Card>
 
@@ -237,7 +260,7 @@ function AdminDashboard() {
                   Pending Orders
                 </p>
                 <p className="text-3xl font-bold text-gray-900">
-                  {adminData.stats.pendingOrders}
+                  {data?.pendingOrders?.length}
                 </p>
               </div>
               <Package className="h-6 w-6 text-red-600" />
@@ -261,22 +284,22 @@ function AdminDashboard() {
           <Card>
             <h2 className="font-bold text-lg mb-4">Recent Orders</h2>
             <div className="space-y-2">
-              {adminOrders.map((order) => (
+              {data?.orders?.slice(0, 5).map((order) => (
                 <div
-                  key={order.id}
+                  key={order._id}
                   className="flex justify-between p-3 border rounded-lg bg-gray-50"
                 >
                   <div>
-                    <p className="font-medium">{order.customer}</p>
-                    <p className="text-sm text-gray-500">{order.date}</p>
+                    <p className="font-medium">{order.userId.name}</p>
+                    <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium">${order.total}</p>
+                    <p className="font-medium">{order.total} {currency}</p>
                     <Badge
                       color={
-                        order.status === "Delivered"
+                        order.status === "completed"
                           ? "green"
-                          : order.status === "Processing"
+                          : order.status === "pending"
                             ? "yellow"
                             : "red"
                       }

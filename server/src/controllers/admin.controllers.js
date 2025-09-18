@@ -5,7 +5,9 @@ import {
   uploadBufferToCloudinary,
 } from "../utils/cloudinary.utils.js";
 import { Product } from "../model/Product.model.js";
-import { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
+import { User } from "../model/User.model.js";
+import { Order } from "../model/Order.model.js";
 
 //#region CONSTANTS
 const options = {
@@ -200,6 +202,51 @@ export const getAdminAuthentication = (req, res, next) => {
       status: error.status || 500,
       message: error.message,
     });
+  }
+};
+//#endregion
+
+//#region Get Admin Dashboard -> api/v1/admin/dashboard
+export const getDashboard = async (req, res) => {
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+
+    const orders = await Order.find({}).populate("userId").session(session);
+    const customers = await User.find({}).select("_id").session(session);
+
+    const filteredOrders = orders.filter((order) => order.status !== "pending");
+
+    let revenue = filteredOrders
+      .reduce((previous, current) => {
+        return previous + current.total;
+      }, 0)
+      .toFixed(2);
+
+    const formattedRevenue = new Intl.NumberFormat("pl-PL", {
+      style: "currency",
+      currency: "PLN",
+    }).format(revenue);
+
+    const pendingOrders = orders.filter((order) => order.status === "pending");
+
+    console.log(revenue);
+    console.log(pendingOrders);
+    console.log(formattedRevenue);
+    console.log(orders, customers);
+
+    return res.status(200).json({
+      success: true,
+      orders,
+      customers,
+      formattedRevenue,
+      pendingOrders,
+      mesage: "Admin Data Fetched",
+    });
+  } catch (error) {
+    return res
+      .status(error.status || 500)
+      .json({ status: error.status || 500, message: error.message });
   }
 };
 //#endregion

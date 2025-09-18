@@ -7,6 +7,7 @@ import {
   getAdminAuthentication,
   deleteProduct,
   updateProduct,
+  getDashboard,
 } from "../controllers/admin.controllers.js";
 import { upload } from "../utils/multer.utils.js";
 
@@ -19,6 +20,8 @@ router.get(
   getAdminAuthentication,
 );
 router.get("/product/:id", isAdminAuthenticated, getProductById);
+router.get("/dashboard", isAdminAuthenticated, getDashboard);
+
 router.post("/login", adminLogin);
 router.put(
   "/product-update/:id",

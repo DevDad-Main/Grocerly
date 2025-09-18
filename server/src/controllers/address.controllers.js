@@ -68,6 +68,12 @@ export const getUserAddresses = async (req, res) => {
 //#endregion
 
 //#region Delete User Address By Id api/v1/address/delete/:id
+/**
+ * deleteAddressById.
+ * Deletes the given address by its id
+ * @param {} req
+ * @param {} res
+ */
 export const deleteAddressById = async (req, res) => {
   try {
     const { id } = req.params;
