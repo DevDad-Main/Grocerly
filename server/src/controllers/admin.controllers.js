@@ -212,7 +212,10 @@ export const getDashboard = async (req, res) => {
   try {
     session.startTransaction();
 
-    const orders = await Order.find({}).populate("userId").session(session);
+    const orders = await Order.find({})
+      .populate("userId")
+      .sort({ createdAt: -1 })
+      .session(session);
     const customers = await User.find({}).select("_id").session(session);
 
     const filteredOrders = orders.filter((order) => order.status !== "pending");
