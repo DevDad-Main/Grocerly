@@ -220,7 +220,7 @@ export const getDashboard = async (req, res) => {
 
     const filteredOrders = orders.filter((order) => order.status !== "pending");
 
-    let revenue = filteredOrders
+    const revenue = filteredOrders
       .reduce((previous, current) => {
         return previous + current.total;
       }, 0)
@@ -233,6 +233,9 @@ export const getDashboard = async (req, res) => {
 
     const pendingOrders = orders.filter((order) => order.status === "pending");
 
+    await session.commitTransaction();
+    session.endSession();
+
     return res.status(200).json({
       success: true,
       orders,
@@ -242,6 +245,9 @@ export const getDashboard = async (req, res) => {
       mesage: "Admin Data Fetched",
     });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
     return res
       .status(error.status || 500)
       .json({ status: error.status || 500, message: error.message });
