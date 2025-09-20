@@ -232,7 +232,7 @@ function AdminDashboard() {
                   {data?.orders?.map((order) => (
                     <tr key={order.id} className="text-center border-b">
                       <td className="p-2">{order?.userId.name}</td>
-                      <td className="p-2">${order?.total}</td>
+                      <td className="p-2">{order?.total} {currency}</td>
                       <td className="p-2">{order?.status}</td>
                       <td className="p-2">{new Date(order.createdAt).toLocaleDateString()}</td>
                     </tr>
@@ -281,7 +281,7 @@ function AdminDashboard() {
                           <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">${order.total}</p>
+                          <p className="font-medium">{order.total} {currency}</p>
                           <Badge
                             color={
                               order.status === "completed"

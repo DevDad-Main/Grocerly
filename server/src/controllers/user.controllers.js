@@ -76,10 +76,10 @@ export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    //Temporary validation
-    if (!name || !email || !password) {
-      return res.json({ success: false, message: "Missing Fields" });
-    }
+    // //Temporary validation
+    // if (!name || !email || !password) {
+    //   return res.json({ success: false, message: "Missing Fields" });
+    // }
 
     const exisitingUser = await User.findOne({ email });
 
