@@ -111,24 +111,16 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    //Temporary validation
-    if (!email || !password) {
-      return res.json({
-        success: false,
-        message: "Email and Password are required",
-      });
-    }
-
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.json({ success: false, message: "User not found" });
+      throw new AppError("User not found", 404);
     }
 
     const doesPasswordMatch = await bcrypt.compare(password, user.password);
 
     if (!doesPasswordMatch) {
-      return res.json({ success: false, message: "Incorrect Password" });
+      throw new AppError("Incorrect Password", 401);
     }
 
     const { token } = await generateUserToken(user._id);
@@ -144,10 +136,7 @@ export const loginUser = async (req, res) => {
         message: "User Logged In",
       });
   } catch (error) {
-    return res.status(error.status || 500).json({
-      status: error.status || 500,
-      message: error.message,
-    });
+    throw new AppError(error.message, 500);
   }
 };
 //#endregion

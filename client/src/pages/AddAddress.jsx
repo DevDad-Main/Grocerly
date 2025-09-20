@@ -17,7 +17,7 @@ const InputField = ({ type, placeholder, name, handleChange, address }) => (
 );
 
 const AddAddress = () => {
-  const { axios, user, navigate } = useAppContext();
+  const { axios, user, navigate, showErrors } = useAppContext();
 
   const [address, setAddress] = useState({
     firstName: "",
@@ -54,7 +54,7 @@ const AddAddress = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      showErrors(error);
     }
   };
 

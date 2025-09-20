@@ -28,7 +28,7 @@ export const AppContextProvider = ({ children }) => {
 
   //#region Error Helper Function
   const showErrors = (error) => {
-    if (error.response?.data?.errors) {
+    if (error.response?.data?.errors.length > 0) {
       error.response.data.errors.forEach((err) =>
         toast.error(`${err.field}: ${err.message}`, {
           position: "top-center",

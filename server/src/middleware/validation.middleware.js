@@ -42,7 +42,7 @@ export const commonValidations = {
 
   email: body("email")
     .notEmpty()
-    .withMessage("Email is required.")
+    .withMessage("Email is required and cannot be empty.")
     .bail()
     .isEmail()
     .withMessage("Please enter a valid email address.")
@@ -57,17 +57,10 @@ export const commonValidations = {
   password: body("password")
     .notEmpty()
     .withMessage("Password is required.")
-    .isStrongPassword({
-      minLength: 6,
-      maxLength: 12,
-      minUppercase: 1,
-      minNumbers: 3,
-      minSymbols: 1,
-    })
-    .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])/)
-    .withMessage(
-      "Password must be 6–12 characters and include at least 1 uppercase, 3 numbers, and 1 symbol.",
-    )
+    .isLength({ min: 6, max: 12 })
+    .withMessage("Password must be 6–12 characters long.")
+    .matches(/^(?=.*[A-Z])(?=.*\d{3,})(?=.*[!@#$%^&*])/)
+    .withMessage("Password must include 1 uppercase, 3 numbers, and 1 symbol.")
     .trim(),
 
   name: body("name")
@@ -95,10 +88,51 @@ export const validateSignup = validate([
 
 //#region Sign In Validation
 export const validateSignin = validate([
-  commonValidations.email,
+  body("email")
+    .notEmpty()
+    .withMessage("Email is required and cannot be empty.")
+    .bail()
+    .isEmail()
+    .withMessage("Please enter a valid email address."),
   body("password").notEmpty().withMessage("Password is required"),
 ]);
 //#endregion
+
+export const validateAddAddress = validate([
+  body("firstName")
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage("First Name must be between 2 and 50 characters")
+    .matches(/^[a-zA-Z\s]*$/)
+    .withMessage("First Name can only contain letters and spaces"),
+  body("lastName")
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage("Last Name must be between 2 and 50 characters")
+    .matches(/^[a-zA-Z\s]*$/)
+    .withMessage("Last Name can only contain letters and spaces"),
+  body("email")
+    .notEmpty()
+    .withMessage("Email is required and cannot be empty.")
+    .bail()
+    .isEmail()
+    .withMessage("Please enter a valid email address.")
+    .normalizeEmail(),
+
+  body("street").trim().notEmpty().withMessage("Street must not be empty"),
+  body("city").trim().notEmpty().withMessage("city must not be empty"),
+  body("state").trim().notEmpty().withMessage("state must not be empty"),
+  body("zipcode")
+    .isPostalCode("any")
+    .withMessage("Please provide a valid postal/zip code."),
+  body("country").trim().notEmpty().withMessage("Country must not be empty"),
+  body("phone")
+    .notEmpty()
+    .withMessage("Phone Number cannot be empty")
+    .isNumeric()
+    .withMessage("Phone number must be numeric")
+    .trim(),
+]);
 
 //#region Validate Password Change
 export const validatePasswordChange = validate([
