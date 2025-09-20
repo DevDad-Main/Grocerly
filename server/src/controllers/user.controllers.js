@@ -77,17 +77,12 @@ export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // //Temporary validation
-    // if (!name || !email || !password) {
-    //   return res.json({ success: false, message: "Missing Fields" });
-    // }
-
-    const encryptedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
     const user = await User.create({
       name,
       email,
-      password: encryptedPassword,
+      password: hashedPassword,
     });
 
     const { token } = await generateUserToken(user._id);
