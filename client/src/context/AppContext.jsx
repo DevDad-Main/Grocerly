@@ -26,6 +26,20 @@ export const AppContextProvider = ({ children }) => {
     setCartItems([]);
   };
 
+  //#region Error Helper Function
+  const showErrors = (error) => {
+    if (error.response?.data?.errors) {
+      error.response.data.errors.forEach((err) =>
+        toast.error(`${err.field}: ${err.message}`, {
+          position: "top-center",
+        }),
+      );
+    } else {
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
+  };
+  //#endregion
+
   //#region Fetch Admin
   const fetchAdmin = async () => {
     try {
@@ -284,6 +298,7 @@ export const AppContextProvider = ({ children }) => {
     setCartItems,
     clearCart,
     deleteProduct,
+    showErrors,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -18,6 +18,7 @@ export const validate = (validations) => {
       message: err.msg,
     }));
 
+    console.log(extractedErrors);
     throw new AppError("Validation failed", 400, extractedErrors);
   };
 };

@@ -16,6 +16,7 @@ import draftOrderRoutes from "./routes/draftOrder.routes.js";
 import stripeRoutes from "./routes/stripe.routes.js";
 import { rateLimit } from "express-rate-limit";
 import hpp from "hpp";
+import { errorHandler } from "./middleware/error.middleware.js";
 
 //#region CONSTANTS
 const app = express();
@@ -94,4 +95,15 @@ app.use("/api/v1/draft-order", draftOrderRoutes);
 app.use("/api/v1/stripe", stripeRoutes);
 //#endregion
 
+//#region Error Handler
+app.use(errorHandler);
+// app.use((err, req, res, next) => {
+//   console.error(err);
+//   return res.status(err.statusCode || 500).json({
+//     status: "error",
+//     message: err.message || "Internal server error",
+//     ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+//   });
+// });
+//#endregion
 export { app };

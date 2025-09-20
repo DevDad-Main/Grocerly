@@ -8,7 +8,8 @@ function Login() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setShowUserLogin, setUser, axios, navigate } = useAppContext();
+  const { setShowUserLogin, showErrors, setUser, axios, navigate } =
+    useAppContext();
 
   const onSubmitHandler = async (e) => {
     try {
@@ -27,7 +28,7 @@ function Login() {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      showErrors(error);
     }
   };
 

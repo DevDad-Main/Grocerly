@@ -5,6 +5,7 @@ import mongoose, { isValidObjectId } from "mongoose";
 import { DraftOrder } from "../model/DraftOrder.model.js";
 import { DeliverySlot } from "../model/DeliverySlot.model.js";
 import { OAuth2Client } from "google-auth-library";
+import { AppError } from "../middleware/error.middleware.js";
 import { v7 as uuidv7 } from "uuid";
 
 //#region CONSTANTS
@@ -81,12 +82,6 @@ export const registerUser = async (req, res) => {
     //   return res.json({ success: false, message: "Missing Fields" });
     // }
 
-    const exisitingUser = await User.findOne({ email });
-
-    if (exisitingUser) {
-      return res.json({ success: false, message: "User already exists" });
-    }
-
     const encryptedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
     const user = await User.create({
@@ -106,10 +101,7 @@ export const registerUser = async (req, res) => {
         message: "User created",
       });
   } catch (error) {
-    return res.status(error.status || 500).json({
-      status: error.status || 500,
-      message: error.message,
-    });
+    throw new AppError(error.message, 500);
   }
 };
 //#endregion
