@@ -13,7 +13,7 @@ cloudinary.config({
 export const uploadBufferToCloudinary = async (buffer, folderId) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder: `Grocerly/${folderId}`, resource_type: "auto" },
+      { folder: `Grocerly/${folderId}`, resource_type: "image" },
       (error, result) => {
         if (result) resolve(result);
         else reject(error);
