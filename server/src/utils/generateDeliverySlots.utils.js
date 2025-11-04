@@ -1,4 +1,4 @@
-import { DeliverySlot } from "../model/DeliverySlot.model.js"; // adjust path
+import { DeliverySlot } from "../model/DeliverySlot.model.js";
 
 // Define your delivery slot times
 const slotGroups = {
