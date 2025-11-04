@@ -32,7 +32,7 @@ export const getPublicIdFromUrl = (url) => {
 };
 
 export const deleteImageFromCloudinary = async (publicId) => {
-  return cloudinary.uploader.destroy(publicId, { resource_type: "auto" });
+  return cloudinary.uploader.destroy(publicId, { resource_type: "image" });
 };
 
 // const uploadOnCloudinary = async (localFilePath, folderId) => {
