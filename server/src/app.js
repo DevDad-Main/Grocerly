@@ -12,6 +12,8 @@ import addressRoutes from "./routes/address.routes.js";
 import orderRoutes from "./routes/order.routes.js";
 import deliveryRoutes from "./routes/deliverySlot.routes.js";
 import draftOrderRoutes from "./routes/draftOrder.routes.js";
+import { serve } from "inngest/express";
+import { functions, inngest } from "./lib/inngest.lib.js";
 // import { stripeWebHook } from "./controllers/order.controllers.js";
 import stripeRoutes from "./routes/stripe.routes.js";
 import { rateLimit } from "express-rate-limit";
@@ -77,6 +79,8 @@ app.use(
     limit: "16kb",
   }),
 );
+
+app.use("/api/inngest", serve({ client: inngest, functions }));
 //#endregion
 
 //#region Endpoints

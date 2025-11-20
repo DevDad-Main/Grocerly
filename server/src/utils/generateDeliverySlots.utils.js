@@ -14,6 +14,10 @@ const slotGroups = {
 
 // Function to generate slots for the next N days
 // Needs to be 15 due to how the for loop executes, it will stop at 14 days
+/**
+ * Generates delivery slots for the next N days
+ * @param {string} daysAhead
+ */
 export async function generateSlots(daysAhead = 15) {
   const now = new Date();
 

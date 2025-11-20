@@ -1,42 +1,49 @@
-import Bull from "bull";
+import { Queue, Worker, QueueEvents } from "bullmq";
 import "dotenv/config";
-import { generateSlots } from "../utils/generateDeliverySlots.utils";
+import { generateSlots } from "../utils/generateDeliverySlots.utils.js";
+import { connection } from "../lib/bullmq.config.js";
 
-const queueOptions = {
-  redis: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-    username: process.env.REDIS_USERNAME,
-    password: process.env.REDIS_PASSWORD,
+//#region Create the queue + Event Listener
+export const slotQueue = new Queue("slot-generator", { connection });
+const slotQueueEvents = new QueueEvents("slot-generator", { connection });
+//#endregion
+
+//#region Wokrer that processses the repeatable job (fortnightly)
+const worker = new Worker(
+  "slot-generator",
+  async (job) => {
+    console.log("Generating new delivery slots for the next 14 days...");
+    await generateSlots();
+    console.log("Delivery slots updated.");
   },
-};
-
-const slotQueue = new Bull("slot-generator", queueOptions);
-
-slotQueue.process(async (job) => {
-  console.log("Generating new Delivery slots for the next 14 days..");
-  await generateSlots(); // NOTE: Default is set to 15 for the next 14 days
-  console.log("Delivery slots updated.");
-});
-
-//INFO: Add the recurring job to process every 14 days
-
-slotQueue.add(
-  {},
-  {
-    jobId: "delivery-slot-refresh",
-    repeat: {
-      every: 14 * 24 * 60 * 60 * 1000, // 14 days in milliseconds
-    },
-  },
+  { connection },
 );
+//#endregion
 
-// NOTE: Add some event listeners so we can check our logs
+//#region Add the repeatable job -> Wrap it in an async IIFE
+(async () => {
+  await slotQueue.add(
+    "delivery-slot-refresh",
+    {},
+    {
+      jobId: "delivery-slot-refresh",
+      repeat: {
+        // Realistically better than "every: 14 days"
+        cron: "0 0 */14 * *",
+      },
+    },
+  );
+})();
+//#endregion
 
-slotQueue.on("completed", (job) => {
-  console.log("Slot Generator finished successfully.");
+//#region Event Listeners
+slotQueueEvents.on("completed", ({ jobId }) => {
+  console.log(`Slot Generator job ${jobId} completed successfully.`);
 });
 
-slotQueue.on("failed", (job, err) => {
-  console.error("Slot Generator failed:", err);
+slotQueueEvents.on("failed", ({ jobId, failedReason }) => {
+  console.error(`Slot Generator job ${jobId} failed:`, failedReason);
 });
+//#endregion
+
+setInterval(() => {}, 60 * 1000);

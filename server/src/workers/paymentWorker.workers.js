@@ -1,4 +1,5 @@
 import { paymentQueue } from "../queues/paymentQueue.queues.js";
+import { Order } from "../model/Order.model.js";
 
 /**
  * Stripe → triggers webhook
