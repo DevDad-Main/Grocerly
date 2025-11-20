@@ -43,9 +43,17 @@ const AddAddress = () => {
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post("/api/v1/address/add-address", {
-        address,
-      });
+      const { data } = await axios.post(
+        "/api/v1/address/add-address",
+        {
+          address,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
 
       if (data.success) {
         toast.success(data.message);

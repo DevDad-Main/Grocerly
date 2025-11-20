@@ -98,20 +98,20 @@ export const validateSignin = validate([
 ]);
 //#endregion
 
-export const validateAddAddress = validate([
-  body("firstName")
+export const validateAddAddress = [
+  body("address.firstName")
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage("First Name must be between 2 and 50 characters")
     .matches(/^[a-zA-Z\s]*$/)
     .withMessage("First Name can only contain letters and spaces"),
-  body("lastName")
+  body("address.lastName")
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage("Last Name must be between 2 and 50 characters")
     .matches(/^[a-zA-Z\s]*$/)
     .withMessage("Last Name can only contain letters and spaces"),
-  body("email")
+  body("address.email")
     .notEmpty()
     .withMessage("Email is required and cannot be empty.")
     .bail()
@@ -119,20 +119,29 @@ export const validateAddAddress = validate([
     .withMessage("Please enter a valid email address.")
     .normalizeEmail(),
 
-  body("street").trim().notEmpty().withMessage("Street must not be empty"),
-  body("city").trim().notEmpty().withMessage("city must not be empty"),
-  body("state").trim().notEmpty().withMessage("state must not be empty"),
-  body("zipcode")
+  body("address.street")
+    .trim()
+    .notEmpty()
+    .withMessage("Street must not be empty"),
+  body("address.city").trim().notEmpty().withMessage("city must not be empty"),
+  body("address.state")
+    .trim()
+    .notEmpty()
+    .withMessage("state must not be empty"),
+  body("address.zipcode")
     .isPostalCode("any")
     .withMessage("Please provide a valid postal/zip code."),
-  body("country").trim().notEmpty().withMessage("Country must not be empty"),
-  body("phone")
+  body("address.country")
+    .trim()
+    .notEmpty()
+    .withMessage("Country must not be empty"),
+  body("address.phone")
     .notEmpty()
     .withMessage("Phone Number cannot be empty")
     .isNumeric()
     .withMessage("Phone number must be numeric")
     .trim(),
-]);
+];
 
 //#region Validate Password Change
 export const validatePasswordChange = validate([

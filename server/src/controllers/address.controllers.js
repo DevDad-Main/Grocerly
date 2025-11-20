@@ -1,6 +1,7 @@
 import { isValidObjectId } from "mongoose";
 import { Address } from "../model/Address.model.js";
 import { User } from "../model/User.model.js";
+import { validationResult } from "express-validator";
 
 //#region Add Address -> api/v1/address/add-address
 export const addAddress = async (req, res) => {
@@ -8,6 +9,11 @@ export const addAddress = async (req, res) => {
     const userId = req.user?._id;
     const { address } = req.body;
     const { phone } = address;
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log(errors.array());
+    }
 
     const parsedNum = parseInt(phone);
 
