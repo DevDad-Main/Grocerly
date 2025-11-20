@@ -33,6 +33,8 @@ const limiter = rateLimit({
 });
 
 //Middleware to protect against HTTP Parameter Pollution
+
+app.set("trust proxy", 1);
 app.use(hpp());
 // We will only use it for routes that start with /api
 app.use("/api", limiter);
