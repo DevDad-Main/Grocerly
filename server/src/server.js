@@ -5,7 +5,7 @@ import { generateSlots } from "./utils/generateDeliverySlots.utils.js";
 import { ExpressAdapter } from "@bull-board/express";
 import { createBullBoard } from "@bull-board/api";
 import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
-import { slotQueue } from "./queues/deliverySlots.queue.js";
+// import { slotQueue } from "./queues/deliverySlots.queue.js";
 
 //#region CONSTANTS
 const PORT = process.env.PORT || 4000;
@@ -17,7 +17,8 @@ const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath("/admin/queues");
 
 createBullBoard({
-  queues: [new BullMQAdapter(slotQueue)],
+  queues: [],
+  // queues: [new BullMQAdapter(slotQueue)],
   serverAdapter,
 });
 
