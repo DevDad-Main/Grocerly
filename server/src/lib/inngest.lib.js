@@ -24,4 +24,19 @@ const generateDeliverySlotsTask = inngest.createFunction(
 );
 //#endregion
 
-export const functions = [generateDeliverySlotsTask];
+//#region Stripe Payment Intent Created
+const stripePaymentIntentCreatedTask = inngest.createFunction(
+  { id: "stripe-payment-created" },
+  {
+    event: "stripe/payment_intent.created",
+  },
+  async ({ event }) => {
+    console.log(event);
+  },
+);
+//#endregion
+
+export const functions = [
+  generateDeliverySlotsTask,
+  stripePaymentIntentCreatedTask,
+];
