@@ -30,8 +30,12 @@ const stripePaymentIntentCreatedTask = inngest.createFunction(
   {
     event: "stripe/payment_intent.created",
   },
-  async ({ event }) => {
-    console.log(event);
+  async ({ event, step }) => {
+    const { data } = event;
+
+    await step.run("stripe-payment-created", async () => {
+      console.log("Data", data);
+    });
   },
 );
 //#endregion
