@@ -106,6 +106,8 @@ app.use("/api/v1/order", orderRoutes);
 app.use("/api/v1/delivery", deliveryRoutes);
 app.use("/api/v1/draft-order", draftOrderRoutes);
 app.use("/api/v1/stripe", stripeRoutes);
+
+app.use("/webhook_stripe/stripe", stripeRoutes);
 //#endregion
 
 //#region Error Handler

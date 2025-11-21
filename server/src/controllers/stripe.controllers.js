@@ -3,13 +3,16 @@ import { Order } from "../model/Order.model.js";
 import { DraftOrder } from "../model/DraftOrder.model.js";
 import { DeliverySlot } from "../model/DeliverySlot.model.js";
 
+const STRIPE_SECRET_KEY = process.env.STRIPE_SK;
+const STRIPE = new Stripe(STRIPE_SECRET_KEY);
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WHS;
+
 //#region Post Confirm Stripe Session Payment
 export const postConfirmPayment = async (req, res) => {
   try {
     const { sessionId } = req.body;
-    const stripe = new Stripe(process.env.STRIPE_SK);
 
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+    const session = await STRIPE.checkout.sessions.retrieve(sessionId, {
       expand: ["payment_intent"],
     });
 
@@ -56,6 +59,25 @@ export const postConfirmPayment = async (req, res) => {
       success: false,
       message: "Error confirming payment",
     });
+  }
+};
+//#endregion
+
+//#region
+export const stripePaymentWebhookHandler = async (req, res) => {
+  try {
+    const signature = req.headers["stripe-signature"];
+    const event = STRIPE.webhooks.constructEvent(
+      req.body,
+      signature,
+      STRIPE_WEBHOOK_SECRET,
+    );
+
+    if (event.type === "payment_intent.created") {
+      console.log(event);
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 //#endregion
