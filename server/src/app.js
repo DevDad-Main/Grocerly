@@ -73,6 +73,7 @@ app.use(
 app.use(helmet());
 app.use(compression());
 
+app.use("/webhook_stripe/stripe", stripeRoutes);
 app.use(express.json());
 app.use(cookieParser());
 app.use(
@@ -107,7 +108,6 @@ app.use("/api/v1/delivery", deliveryRoutes);
 app.use("/api/v1/draft-order", draftOrderRoutes);
 app.use("/api/v1/stripe", stripeRoutes);
 
-app.use("/webhook_stripe/stripe", stripeRoutes);
 //#endregion
 
 //#region Error Handler
